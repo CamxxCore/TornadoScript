@@ -2,35 +2,78 @@
 using GTA;
 using GTA.Native;
 using GTA.Math;
+using ScriptCore;
 
 namespace TornadoScript.Script
 {
-    public sealed class TParticle : Entity
+    /// <summary>
+    /// Represents a particle in the tornado.
+    /// </summary>
+    public sealed class TParticle : ScriptProp
     {
-        /// <summary>
-        /// Eliptical radius width.
-        /// </summary>
-        public float RadiusA { get; set; } = 10.0f;
+        public int LayerIndex { get { return layer; } }
 
-        /// <summary>
-        /// Eliptical radius length.
-        /// </summary>
-        public float RadiusB { get; set; } = 10.0f;
+        public TVortex Parent
+        {
+            get { return parent; }
 
-        /// <summary>
-        /// Particle rotation speed.
-        /// </summary>
-        public float Speed { get; set; } = 1.5f;
+            set { parent = value; }
+        }
+
+        private TVortex parent;
+
+        private Vector3 centerPos;
 
         private Quaternion rotation;
 
-        private GameSound wind, swoosh;
+        private LoopedParticle ptfx;
 
-        private LoopedPTFX fx;
+        private float angle, xRadius, yRadius, layerMask;
 
-        private float zCoord, angle;
+        private int layer;
 
-        private static int Setup(Vector3 position)
+        /// <summary>
+        /// Instantiate the class.
+        /// </summary>
+        /// <param name="vortex"></param>
+        /// <param name="fxAsset"></param>
+        /// <param name="fxName"></param>
+        /// <param name="position"></param>
+        /// <param name="angle"></param>
+        /// <param name="radiusX"></param>
+        /// <param name="radiusY"></param>
+        /// <param name="layerIdx"></param>
+        public TParticle(TVortex vortex, Vector3 position, Vector3 angle, string fxAsset, string fxName, float radiusX, float radiusY, int layerIdx) 
+            : base(Setup(position))
+        {   
+            parent = vortex;      
+            centerPos = position;
+            rotation = MathEx.Euler(angle);
+            ptfx = new LoopedParticle(fxAsset, fxName);
+            xRadius = radiusX;
+            yRadius = radiusY;
+            layer = layerIdx;
+            PostSetup();
+        }
+
+        private void PostSetup()
+        {
+            layerMask = 1.0f - (layer / parent.MaxLayers);
+
+            layerMask *= (0.1f * layer);
+
+            layerMask = 1.0f - layerMask;
+
+            if (layerMask < 0.20f)
+                layerMask = 0.20f;
+        }
+
+        /// <summary>
+        /// Setup the base entity.
+        /// </summary>
+        /// <param name="position"></param>
+        /// <returns></returns>
+        private static Prop Setup(Vector3 position)
         {
             Model model = new Model("prop_beachball_02");
 
@@ -42,66 +85,73 @@ namespace TornadoScript.Script
 
             prop.IsVisible = false;
 
-            return prop.Handle;
+            return prop;
         }
 
-        public TParticle(Vector3 position, Vector3 rotation) : base(Setup(position))
+        /// <summary>
+        /// Set the center position that the particle should rotate around.
+        /// </summary>
+        /// <param name="center"></param>
+        public void SetPosition(Vector3 center)
         {
-            this.zCoord = position.Z;
-            this.rotation = Util.Euler(rotation);
-            //this.wind = new GameSound("Helicopter_Wind", "BASEJUMPS_SOUNDS");
-            this.swoosh = new GameSound("Woosh_01", "FBI_HEIST_ELEVATOR_SHAFT_DEBRIS_SOUNDS");
-            //wind.Play(this);
-            swoosh.Play(this);
-            SetPTFX("core", "ent_amb_smoke_foundry");
+            centerPos = center;
         }
 
-        public TParticle(Vector3 position) : this(position, new Vector3())
-        { }
-
-        public void SetPTFX(string assetName, string fxName)
-        {
-            fx?.Remove();
-
-            fx = new LoopedPTFX(assetName, fxName);
-
-            if (!fx.IsLoaded) fx.Load();
-
-            fx.Start(this, 1.0f);
-
-            fx.Colour = System.Drawing.Color.Red;
-
-            fx.SetEvolution("LOD", 10000f);
-
-            fx.SetEvolution("smoke", -10f);
-        }
-
+        /// <summary>
+        /// Set the particle scale.
+        /// </summary>
+        /// <param name="scale"></param>
         public void SetScale(float scale)
         {
-            fx.Scale = scale;
+            ptfx.Scale = scale;
         }
 
-        public void Rotate(Vector3 vec)
+        public override void OnUpdate(int gameTime)
         {
-            rotation = Util.Euler(vec);
+            if (parent == null)
+            {
+                Dispose();
+            }
+
+            else
+            {
+                centerPos = parent.Position + new Vector3(0, 0, parent.LayerSize * layer);
+
+                Ref.Position = centerPos + MathEx.MultiplyVector(new Vector3(xRadius * (float)Math.Cos(angle), yRadius * (float)Math.Sin(angle), 0), rotation);
+
+                angle -= (parent.Speed * layerMask) * Function.Call<float>(Hash.GET_FRAME_TIME);
+
+               /* if (angle > Math.PI * 2.0f)
+                {
+                    angle = 0.0f;
+                }*/
+            }
+
+            base.OnUpdate(gameTime);
+        }
+
+        public void StartFX(float scale)
+        {
+            if (!ptfx.IsLoaded)
+            {
+                ptfx.Load();
+            }
+
+            ptfx.Start(this, scale);
+
+            ptfx.Colour = System.Drawing.Color.Black;
         }
 
         public void RemoveFX()
         {
-            fx.Remove();
-            swoosh.Destroy();
-            //wind.Destroy();
+            ptfx.Remove();
         }
 
-        public void Update(Vector3 position)
+        public override void Dispose()
         {
-            position.Z = zCoord;
+            RemoveFX();
 
-            fx.SetEvolution("debris", 1.0f);
-
-            angle += Speed * Function.Call<float>(Hash.GET_FRAME_TIME);
-
-            Position = position + Util.MultiplyVector(new Vector3(RadiusA * (float)Math.Cos(angle), RadiusB * (float)Math.Sin(angle), 0), rotation);
+            base.Dispose();
         }
     }
 }

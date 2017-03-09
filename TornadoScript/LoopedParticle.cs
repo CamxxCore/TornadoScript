@@ -5,7 +5,7 @@ using Color = System.Drawing.Color;
 
 namespace TornadoScript
 {
-    public class LoopedPTFX
+    public class LoopedParticle
     {
         private float scale;
 
@@ -33,7 +33,7 @@ namespace TornadoScript
         /// </summary>
         public Color Colour { set { Function.Call(Hash.SET_PARTICLE_FX_LOOPED_COLOUR, Handle, value.R, value.G, value.B, 0); } }
 
-        public LoopedPTFX(string assetName, string fxName)
+        public LoopedParticle(string assetName, string fxName)
         {
             this.Handle = -1;
             this.AssetName = assetName;

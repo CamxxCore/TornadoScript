@@ -1,106 +1,112 @@
-﻿using System;
+﻿using System.Linq;
+using System.Windows.Forms;
 using GTA;
 using GTA.Native;
-using System.Windows.Forms;
+using ScriptCore;
+using TornadoScript.Memory;
+using TornadoScript.Config;
 
 namespace TornadoScript.Script
 {
-    public class TScript : GTA.Script
+    public class TScript : ScriptThread
     {
-        private TVortex tVortex;
-
-        private int lastSpawnAttempt = 0;
+        private TMonitor tMonitor;
 
         public TScript()
         {
-            GameSound.Load("FBI_HEIST_ELEVATOR_SHAFT_DEBRIS_SOUNDS");
-
-            GameSound.Load("BASEJUMPS_SOUNDS");
-
-            Tick += OnTick;
+            SetupAssets();
+            AddVars();
             KeyDown += KeyPressed;
+            tMonitor = GetOrCreate<TMonitor>();    
         }
 
-        private void OnTick(object sender, EventArgs e)
+        private void SetupAssets()
         {
-            if (tVortex != null && Game.Player.IsDead && Function.Call<bool>(Hash.IS_SCREEN_FADED_OUT))
-            {
-                tVortex.Dispose();
-                tVortex = null;
-                return;
-            }
-
-            tVortex?.Update();
-
-            if (Config.SpawnInStorm && tVortex == null && World.Weather == Weather.ThunderStorm)
-            {
-                if (Game.GameTime - lastSpawnAttempt > 1000)
-                {
-                    if (new Random().Next(0, 1000) < 10)
-                    {
-                        Function.Call(Hash.SET_WIND_SPEED, 70.0f);
-
-                        var position = Game.Player.Character.Position + Game.Player.Character.ForwardVector * 100f;
-
-                        position = position.Around(30f);
-
-                        tVortex = CreateVortex(position);
-                    }
-
-                    lastSpawnAttempt = Game.GameTime;
-                }
-            }
+            MemoryAccess.PatchPTFX();
+            GameSound.Load("FBI_HEIST_ELEVATOR_SHAFT_DEBRIS_SOUNDS");
+            GameSound.Load("BASEJUMPS_SOUNDS");
         }
+
+        public void AddVars()
+        {
+            RegisterVar("enablekeybinds", IniHelper.GetConfigSetting("KeyBinds", "KeybindsEnabled", true));
+            RegisterVar("togglescript", IniHelper.GetConfigSetting("KeyBinds", "ToggleScript", Keys.F6));
+            RegisterVar("vortexHorzizontalPullForce", IniHelper.GetConfigSetting("Vortex", "HorizontalForceScale", 1.1f));
+            RegisterVar("vortexVerticalPullForce", IniHelper.GetConfigSetting("Vortex", "VerticalForceScale", 1.169f));
+            RegisterVar("spawninstorm", IniHelper.GetConfigSetting("Other", "SpawnInStorm", true));
+            RegisterVar("notifications", IniHelper.GetConfigSetting("Other", "Notifications", true));        
+        }
+
+        GameSound sound;
 
         private void KeyPressed(object sender, KeyEventArgs e)
         {
-            if (!Config.EnableKeybinds) return;
+            if (!GetVar<bool>("enablekeybinds")) return;
 
-            if (e.KeyCode == Config.ToggleScript)
+            if (e.KeyCode == Keys.Add)
             {
-                if (tVortex == null)
+                MemoryAccess.PatchPTFX();
+
+               /* if (sound != null)
                 {
-                    Function.Call(Hash.SET_WIND_SPEED, 70.0f);
+                    sound.Destroy();
+                }
 
-                    var position = Game.Player.Character.Position + Game.Player.Character.ForwardVector * 100f;
+                GameSound.Load("FBI_HEIST_RAID");
+                
 
-                    tVortex = CreateVortex(position);
+                sound = new GameSound("debris", "EXTREME_01_SOUNDSET");
 
-                    UI.Notify("Tornado spawned nearby.");
+                sound.Play(Game.Player.Character.Position);
+
+                UI.ShowSubtitle("done");
+                       */                 //  var result = MemoryAccess.Func();
+
+                //  UI.ShowSubtitle(result.Count().ToString());
+
+                // Function.Call((Hash)0x552369F549563AD5, true);
+                //  UI.ShowSubtitle(Probability.GetScalar().ToString());
+                // MemoryAccess.Func("core", "ent_amb_smoke_foundry");
+            }
+
+            if (e.KeyCode == GetVar<Keys>("togglescript"))
+            {
+                if (tMonitor.ActiveVortexCount > 0)
+                {
+                    tMonitor.RemoveAll();
                 }
 
                 else
                 {
-                    tVortex.Dispose();
+                    Function.Call(Hash.REMOVE_PARTICLE_FX_IN_RANGE, 0, 0, 0, 100000.0f);
 
-                    tVortex = null;
+                    Function.Call(Hash.SET_WIND, 70.0f);
 
-                    UI.Notify("Tornado despawned!");
+                    var position = Game.Player.Character.Position + Game.Player.Character.ForwardVector * 100f;
+
+                    tMonitor.CreateVortex(position);
                 }
             }
         }
 
-        private TVortex CreateVortex(GTA.Math.Vector3 position)
+        private void ReleaseAssets()
         {
-            position.Z = World.GetGroundHeight(position) - 10f;
-
-            var tVortex = new TVortex(position);
-
-            tVortex.Build();
-
-            return tVortex;
+            GameSound.Release("FBI_HEIST_ELEVATOR_SHAFT_DEBRIS_SOUNDS");
+            GameSound.Release("BASEJUMPS_SOUNDS");
         }
 
         protected override void Dispose(bool A_0)
         {
-            var pos = Game.Player.Character.Position;
-            Function.Call(Hash.REMOVE_PARTICLE_FX_IN_RANGE, pos.X, pos.Y, pos.Z, 10000.0f);
+            if (sound != null)
+            {
+                sound.Destroy();
 
-            tVortex?.Dispose();
+                sound = null;
+            }
 
-            GameSound.Release("FBI_HEIST_ELEVATOR_SHAFT_DEBRIS_SOUNDS");
+            Function.Call(Hash.REMOVE_PARTICLE_FX_IN_RANGE, 0f, 0f, 0f, 1000000.0f);
 
-            GameSound.Release("BASEJUMPS_SOUNDS");       
+            ReleaseAssets();
 
             base.Dispose(A_0);
         }

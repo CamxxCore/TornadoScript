@@ -4,16 +4,19 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.ComponentModel;
 
-namespace TornadoScript.INI
+namespace TornadoScript.Config
 {
-    public static class INIHelper
+    public static class IniHelper
     {
-        public static readonly string IniPath = string.Format("scripts\\{0}.ini", Assembly.GetExecutingAssembly().GetName().Name);
-        public static readonly IniFile IniFile = new IniFile(IniPath);
+        public static readonly string IniPath;
+        public static readonly IniFile IniFile;
 
-        static INIHelper()
+        static IniHelper()
         {
+            IniPath = string.Format("scripts\\{0}.ini",
+            Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location));
             if (!File.Exists(IniPath)) Create();
+            IniFile = new IniFile(IniPath);
         }
 
         /// <summary>

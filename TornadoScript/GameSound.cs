@@ -1,5 +1,6 @@
 ﻿using GTA;
 using GTA.Native;
+using GTA.Math;
 
 namespace TornadoScript
 {
@@ -37,7 +38,14 @@ namespace TornadoScript
         public void Play(Entity ent)
         {
             soundID = Function.Call<int>(Hash.GET_SOUND_ID);
-            Function.Call(Hash.PLAY_SOUND_FROM_ENTITY, soundID, sound, ent.Handle, soundSet, 0, 0);
+            Function.Call(Hash.PLAY_SOUND_FROM_ENTITY, soundID, sound, ent.Handle, 0, 0, 0);
+            Active = true;
+        }
+
+        public void Play(Vector3 position)
+        {
+            soundID = Function.Call<int>(Hash.GET_SOUND_ID);
+            Function.Call(Hash.PLAY_SOUND_FROM_COORD, soundID, sound, position.X, position.Y, position.Z, 0, 0, 0, 0);
             Active = true;
         }
 

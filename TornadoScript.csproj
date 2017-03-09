@@ -29,6 +29,25 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="ScriptHookVDotNet">
       <HintPath>..\..\..\..\..\Desktop\Files\ScriptHookVDotNet.dll</HintPath>
@@ -45,21 +64,52 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TornadoScript\Config.cs" />
+    <Compile Include="ScriptCore\Game\IScriptComponent.cs" />
+    <Compile Include="ScriptCore\Game\IScriptEntity.cs" />
+    <Compile Include="ScriptCore\Game\IScriptEventHandler.cs" />
+    <Compile Include="ScriptCore\Game\IScriptUpdatable.cs" />
+    <Compile Include="ScriptCore\Game\IScriptVar.cs" />
+    <Compile Include="ScriptCore\Game\ScriptComponent.cs" />
+    <Compile Include="ScriptCore\Game\ScriptEntity.cs" />
+    <Compile Include="ScriptCore\Game\ScriptEntityEventArgs.cs" />
+    <Compile Include="ScriptCore\Game\ScriptExtension.cs" />
+    <Compile Include="ScriptCore\Game\ScriptExtensionEventArgs.cs" />
+    <Compile Include="ScriptCore\Game\ScriptExtensionEventPool.cs" />
+    <Compile Include="ScriptCore\Game\ScriptExtensionPool.cs" />
+    <Compile Include="ScriptCore\Game\ScriptPed.cs" />
+    <Compile Include="ScriptCore\Game\ScriptPlane.cs" />
+    <Compile Include="ScriptCore\Game\ScriptProp.cs" />
+    <Compile Include="ScriptCore\Game\ScriptThread.cs" />
+    <Compile Include="ScriptCore\Game\ScriptVar.cs" />
+    <Compile Include="ScriptCore\Game\ScriptVarCollection.cs" />
+    <Compile Include="ScriptCore\IO\EncryptedFileStream.cs" />
+    <Compile Include="ScriptCore\IO\IXMLSimpleMetadata.cs" />
+    <Compile Include="ScriptCore\IO\XMLAttributesCollection.cs" />
+    <Compile Include="ScriptCore\IO\XMLSimpleMetadata.cs" />
+    <Compile Include="ScriptCore\IO\XMLSimpleParser.cs" />
+    <Compile Include="ScriptCore\Logger.cs" />
+    <Compile Include="TornadoScript\Memory\Types.cs" />
+    <Compile Include="TornadoScript\Memory\MemoryAccess.cs" />
+    <Compile Include="TornadoScript\Memory\Pattern.cs" />
+    <Compile Include="TornadoScript\MathEx.cs" />
+    <Compile Include="TornadoScript\Probability.cs" />
     <Compile Include="TornadoScript\GameSound.cs" />
-    <Compile Include="TornadoScript\LoopedPTFX.cs" />
+    <Compile Include="TornadoScript\LoopedParticle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="TornadoScript\INI\IniFile.cs" />
-    <Compile Include="TornadoScript\INI\IniHelper.cs" />
+    <Compile Include="TornadoScript\Config\IniFile.cs" />
+    <Compile Include="TornadoScript\Config\IniHelper.cs" />
+    <Compile Include="TornadoScript\Script\TMonitor.cs" />
     <Compile Include="TornadoScript\Script\TParticle.cs" />
     <Compile Include="TornadoScript\Script\TScript.cs" />
+    <Compile Include="TornadoScript\StrongRandom.cs" />
     <Compile Include="TornadoScript\Util.cs" />
     <Compile Include="TornadoScript\Script\TVortex.cs" />
+    <Compile Include="TornadoScript\Memory\Win32Native.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
