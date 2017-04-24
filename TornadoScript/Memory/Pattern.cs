@@ -5,27 +5,27 @@ namespace TornadoScript.Memory
 {
     public unsafe sealed class Pattern
     {
-        private string bytes, mask;
+        private string _bytes, _mask;
 
         public Pattern(string bytes, string mask)
         {
-            this.bytes = bytes;
-            this.mask = mask;
+            this._bytes = bytes;
+            this._mask = mask;
         }
 
         public IntPtr Get(int offset = 0)
         {
-            MODULEINFO module;
+            Win32Native.Moduleinfo module;
 
-            Interop.GetModuleInformation(Interop.GetCurrentProcess(), Interop.GetModuleHandle(null), out module, (uint)sizeof(MODULEINFO));
+            Win32Native.GetModuleInformation(Win32Native.GetCurrentProcess(), Win32Native.GetModuleHandle(null), out module, (uint)sizeof(Win32Native.Moduleinfo));
 
-            var address = module.lpBaseOfDll.ToInt64();
+            var address = module.LpBaseOfDll.ToInt64();
 
             var end = address + module.SizeOfImage;
 
-            for (; address < end; address++)
+            for (;address < end; address++)
             {
-                if (bCompare((byte*)(address), bytes.ToCharArray(), mask.ToCharArray()))
+                if (BCompare((byte*)(address), _bytes.ToCharArray(), _mask.ToCharArray()))
                 {
                     return new IntPtr(address + offset);
                 }
@@ -34,7 +34,7 @@ namespace TornadoScript.Memory
             return IntPtr.Zero;
         }
 
-        private bool bCompare(byte* pData, char[] bMask, char[] szMask)
+        private bool BCompare(byte* pData, char[] bMask, char[] szMask)
         {
             int i = 0;
 

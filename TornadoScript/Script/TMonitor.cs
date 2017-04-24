@@ -10,41 +10,35 @@ namespace TornadoScript.Script
     /// <summary>
     /// Extension to manage the spawning of tornadoes.
     /// </summary>
-    public class TMonitor : ScriptExtension
+    public class Monitor : ScriptExtension
     {
-        const int VortexLimit = 30;
+        private const int VortexLimit = 30;
 
-        private int lastSpawnAttempt = 0;
+        private int _lastSpawnAttempt;
 
-        private int activeVortexCount = 0;
+        public int ActiveVortexCount { get; private set; }
 
-        public int ActiveVortexCount {  get { return activeVortexCount; } }
-
-        private TVortex[] activeVortexList = new TVortex[VortexLimit];
-
-        private readonly Ped Player = Game.Player.Character;
+        private readonly Vortex[] _activeVortexList = new Vortex[VortexLimit];
 
         /// <summary>
         /// Create a vortex at the given position.
         /// </summary>
         /// <param name="position"></param>
         /// <returns></returns>
-        public TVortex CreateVortex(Vector3 position)
+        public Vortex CreateVortex(Vector3 position)
         {
-      //w      World.GetAllEntities().Select(x => { x.Delete(); return true; });
+            for (int i = _activeVortexList.Length - 1; i > 0; i--)
+                _activeVortexList[i] = _activeVortexList[i - 1];
 
-            for (int i = activeVortexList.Length - 1; i > 0; i--)
-                activeVortexList[i] = activeVortexList[i - 1];
+            position.Z = World.GetGroundHeight(position) - 10.0f;
 
-            position.Z = World.GetGroundHeight(position);
-
-            var tVortex = new TVortex(position);
+            var tVortex = new Vortex(position);
 
             tVortex.Build();
 
-            activeVortexList[0] = tVortex;
+            _activeVortexList[0] = tVortex;
 
-            activeVortexCount = Math.Min(activeVortexCount + 1, activeVortexList.Length);
+            ActiveVortexCount = Math.Min(ActiveVortexCount + 1, _activeVortexList.Length);
 
             if (ScriptThread.GetVar<bool>("notifications"))
             {
@@ -56,14 +50,14 @@ namespace TornadoScript.Script
 
         public override void OnUpdate(int gameTime)
         {
-            if (activeVortexCount > 0 && Game.Player.IsDead && Function.Call<bool>(Hash.IS_SCREEN_FADED_OUT))
+            if (ActiveVortexCount > 0 && Game.Player.IsDead && Function.Call<bool>(Hash.IS_SCREEN_FADED_OUT))
             {
                 RemoveAll();
             }
 
             if (World.Weather == Weather.ThunderStorm && ScriptThread.GetVar<bool>("spawnInStorm"))
             {
-                if (Game.GameTime - lastSpawnAttempt > 1000)
+                if (Game.GameTime - _lastSpawnAttempt > 1000)
                 {
                     if (Probability.GetBoolean(0.005f))
                     {
@@ -74,7 +68,7 @@ namespace TornadoScript.Script
                         CreateVortex(position.Around(30f));
                     }
 
-                    lastSpawnAttempt = Game.GameTime;
+                    _lastSpawnAttempt = Game.GameTime;
                 }
             }   
 
@@ -83,21 +77,21 @@ namespace TornadoScript.Script
 
         public void RemoveAll()
         {
-            for (int i = 0; i < activeVortexCount; i++)
+            for (int i = 0; i < ActiveVortexCount; i++)
             {
-                activeVortexList[i].Dispose();
+                _activeVortexList[i].Dispose();
 
-                activeVortexList[i] = null;
+                _activeVortexList[i] = null;
             }
 
-            activeVortexCount = 0;
+            ActiveVortexCount = 0;
         }
 
         public override void Dispose()
         {
-            for (int i = 0; i < activeVortexCount; i++)
+            for (int i = 0; i < ActiveVortexCount; i++)
             {
-                activeVortexList[i].Dispose();
+                _activeVortexList[i].Dispose();
             }
 
             base.Dispose(); 

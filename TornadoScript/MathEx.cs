@@ -6,6 +6,39 @@ namespace TornadoScript
 {
     public static class MathEx
     {
+        private static Dictionary<float, float> _cosTable = new Dictionary<float, float>();
+
+        private static float[] _cos = new float[720];
+
+        private static float[] _sin = new float[720];
+
+        public const double RadToDeg = (180 / Math.PI);
+
+        public const double DegToRad = (Math.PI / 180);
+
+        static MathEx()
+        {
+            for (int i = 0; i < 360; i++)
+            {
+                _cos[i] = (float) Math.Cos(ToRadians(360 - i));
+                _sin[i] = (float) Math.Sin(ToRadians(360 - i));
+                _cos[i + 360] = (float)Math.Cos(ToRadians(i));
+                _sin[i + 360] = (float)Math.Sin(ToRadians(i));
+            }
+        }
+
+        public static float Cos(double value)
+        {
+            int deg = (int)value.ToDegrees();
+            return value < 0 ? _cos[-deg] : _cos[deg + 360];
+        }
+
+        public static float Sin(double value)
+        {
+            int deg = (int)value.ToDegrees();
+            return value < 0 ? _sin[-deg] : _sin[deg + 360];
+        }
+
         public static Vector3 MoveTowards(Vector3 current, Vector3 target, float maxDistanceDelta)
         {
             Vector3 a = target - current;
@@ -54,7 +87,18 @@ namespace TornadoScript
         /// <returns></returns>
         public static double ToRadians(this double val)
         {
-            return (Math.PI / 180) * val;
+            return DegToRad * val;
+        }
+
+
+        /// <summary>
+        /// Convert degrees to radians.
+        /// </summary>
+        /// <param name="val">The value in degrees.</param>
+        /// <returns></returns>
+        public static double ToDegrees(this double val)
+        {
+            return RadToDeg * val;
         }
 
         public static Quaternion Euler(Vector3 eulerAngles)

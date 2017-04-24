@@ -28,6 +28,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -47,6 +48,7 @@
     <PlatformTarget>x64</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ScriptHookVDotNet">
@@ -62,6 +64,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ScriptCore\Game\IScriptComponent.cs" />
@@ -72,6 +75,7 @@
     <Compile Include="ScriptCore\Game\ScriptComponent.cs" />
     <Compile Include="ScriptCore\Game\ScriptEntity.cs" />
     <Compile Include="ScriptCore\Game\ScriptEntityEventArgs.cs" />
+    <Compile Include="ScriptCore\Game\ScriptEventArgs.cs" />
     <Compile Include="ScriptCore\Game\ScriptExtension.cs" />
     <Compile Include="ScriptCore\Game\ScriptExtensionEventArgs.cs" />
     <Compile Include="ScriptCore\Game\ScriptExtensionEventPool.cs" />
@@ -88,7 +92,13 @@
     <Compile Include="ScriptCore\IO\XMLSimpleMetadata.cs" />
     <Compile Include="ScriptCore\IO\XMLSimpleParser.cs" />
     <Compile Include="ScriptCore\Logger.cs" />
-    <Compile Include="TornadoScript\Memory\Types.cs" />
+    <Compile Include="TornadoScript\GenericEventArgs.cs" />
+    <Compile Include="TornadoScript\Commands\CommandManager.cs" />
+    <Compile Include="TornadoScript\Frontend\FrontendInput.cs" />
+    <Compile Include="TornadoScript\Frontend\FrontendManager.cs" />
+    <Compile Include="TornadoScript\Frontend\FrontendOutput.cs" />
+    <Compile Include="TornadoScript\Win32Native.cs" />
+    <Compile Include="TornadoScript\Memory\NativeTypes.cs" />
     <Compile Include="TornadoScript\Memory\MemoryAccess.cs" />
     <Compile Include="TornadoScript\Memory\Pattern.cs" />
     <Compile Include="TornadoScript\MathEx.cs" />
@@ -109,7 +119,6 @@
     <Compile Include="TornadoScript\StrongRandom.cs" />
     <Compile Include="TornadoScript\Util.cs" />
     <Compile Include="TornadoScript\Script\TVortex.cs" />
-    <Compile Include="TornadoScript\Memory\Win32Native.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -120,6 +129,7 @@
   <ItemGroup>
     <None Include="Resources\TornadoScript.ini" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy "$(TargetPath)" "C:\Program Files\Rockstar Games\Grand Theft Auto V\scripts\$(ProjectName).dll"</PostBuildEvent>

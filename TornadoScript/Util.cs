@@ -19,6 +19,7 @@ namespace TornadoScript
             return new Vector2(v.X, v.Y);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ApplyForceToCenterOfMass(this Entity entity, Vector3 force)
         {
             Function.Call(Hash.APPLY_FORCE_TO_ENTITY_CENTER_OF_MASS, entity.Handle, 1, force.X, force.Y, force.Z, 0, 0, 1, 1);

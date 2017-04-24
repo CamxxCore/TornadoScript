@@ -7,11 +7,11 @@ namespace TornadoScript
 {
     public class LoopedParticle
     {
-        private float scale;
+        private float _scale;
 
         public int Handle { get; private set; }
         public string AssetName { get; private set; }
-        public string FXName { get; private set; }
+        public string FxName { get; private set; }
 
         /// <summary>
         /// If the particle FX is spawned.
@@ -26,7 +26,7 @@ namespace TornadoScript
         /// <summary>
         /// Set the particle FX scale.
         /// </summary>
-        public float Scale { get { return scale; } set { Function.Call(Hash.SET_PARTICLE_FX_LOOPED_SCALE, Handle, scale = value); } }
+        public float Scale { get { return _scale; } set { Function.Call(Hash.SET_PARTICLE_FX_LOOPED_SCALE, Handle, _scale = value); } }
 
         /// <summary>
         /// Set the particle FX looped colour.
@@ -37,7 +37,7 @@ namespace TornadoScript
         {
             this.Handle = -1;
             this.AssetName = assetName;
-            this.FXName = fxName;
+            this.FxName = fxName;
         }
 
         /// <summary>
@@ -60,14 +60,14 @@ namespace TornadoScript
         {
             if (Handle != -1) return;
 
-            this.scale = scale;
+            this._scale = scale;
 
             Function.Call(Hash._SET_PTFX_ASSET_NEXT_CALL, AssetName);
 
             Handle = bone == null ?
-                Function.Call<int>(Hash.START_PARTICLE_FX_LOOPED_ON_ENTITY, FXName,
+                Function.Call<int>(Hash.START_PARTICLE_FX_LOOPED_ON_ENTITY, FxName,
                 entity, offset.X, offset.Y, offset.Z, rotation.X, rotation.Y, rotation.Z, scale, 0, 0, 1) :
-                Function.Call<int>(Hash._START_PARTICLE_FX_LOOPED_ON_ENTITY_BONE, FXName,
+                Function.Call<int>(Hash._START_PARTICLE_FX_LOOPED_ON_ENTITY_BONE, FxName,
                 entity, offset.X, offset.Y, offset.Z, rotation.X, rotation.Y, rotation.Z, (int)bone, scale, 0, 0, 0);
         }
 
@@ -91,11 +91,11 @@ namespace TornadoScript
         {
             if (Handle != -1) return;
 
-            this.scale = scale;
+            this._scale = scale;
 
             Function.Call(Hash._SET_PTFX_ASSET_NEXT_CALL, AssetName);
 
-            Handle = Function.Call<int>(Hash.START_PARTICLE_FX_LOOPED_AT_COORD, FXName,
+            Handle = Function.Call<int>(Hash.START_PARTICLE_FX_LOOPED_AT_COORD, FxName,
              position.X, position.Y, position.Z, rotation.X, rotation.Y, rotation.Z, scale, 0, 0, 0, 0);
         }
 

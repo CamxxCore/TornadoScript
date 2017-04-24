@@ -18,7 +18,7 @@ namespace ScriptCore
         /// <param name="name">The name of the event.</param>
         public void NotifyEvent(string name)
         {
-            NotifyEvent(name, new EventArgs());
+            NotifyEvent(name, new ScriptEventArgs());
         }
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace ScriptCore
         /// </summary>
         /// <param name="name">The name of the event.</param>
         /// <param name="args">Event specific arguments.</param>
-        public void NotifyEvent(string name, EventArgs args)
+        public void NotifyEvent(string name, ScriptEventArgs args)
         {
             Events[name]?.Invoke(this, args);
         }

@@ -1,22 +1,25 @@
 ﻿using System;
 using System.Text;
 using System.Drawing;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Linq;
+using System.Runtime.CompilerServices;
 using GTA;
+using GTA.Math;
 
 namespace TornadoScript.Memory
 {
     public unsafe static class MemoryAccess
     {
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        public delegate IntPtr fwGetAssetIndexFunc(IntPtr assetStore, out int index, StringBuilder name);
+        public delegate IntPtr FwGetAssetIndexFn(IntPtr assetStore, out int index, StringBuilder name);
 
-        public delegate int getScriptEntityIndexFn(IntPtr entityAddress);
+        public delegate IntPtr GetPooledPtfxAddressFn(int handle);
 
-        private static IntPtr ptfxAssetStorePtr,
-            fwGetAssetIndexPtr;
+        private static IntPtr _ptfxAssetStorePtr;
+
+        //private static getPooledPtfxAddressFn _getPooledPtfxAddress;
+
+        private static FwGetAssetIndexFn _fwGetAssetIndex;
 
         static MemoryAccess()
         {
@@ -30,7 +33,7 @@ namespace TornadoScript.Memory
             {
                 long rip = result.ToInt64() + 7;
                 int value = Marshal.ReadInt32(IntPtr.Add(result, 3));
-                ptfxAssetStorePtr = new IntPtr(rip + value);
+                _ptfxAssetStorePtr = new IntPtr(rip + value);
             }
 
             #endregion
@@ -45,30 +48,79 @@ namespace TornadoScript.Memory
             {
                 long rip = result.ToInt64() + 4;
                 int value = Marshal.ReadInt32(result);
-                fwGetAssetIndexPtr = new IntPtr(rip + value);
+                _fwGetAssetIndex = Marshal.GetDelegateForFunctionPointer<FwGetAssetIndexFn>(new IntPtr(rip + value));
             }
 
             #endregion
+/*
+           #region SetupGetPooledPtfxAddress
+
+            pattern = new Pattern("\x48\x8B\x40\x20\x0F\x28\x0B", "xxxxxxx");
+
+            result = pattern.Get(-0xA);
+
+            if (result != null)
+            {
+                long rip = result.ToInt64() + 5;
+                int value = Marshal.ReadInt32(result + 0x1);
+                _getPooledPtfxAddress = Marshal.GetDelegateForFunctionPointer<getPooledPtfxAddressFn>(new IntPtr(rip + value));
+            }
+            
+            #endregion*/
         }
 
-        private static pgDictionary* GetPtfxRuleDictionary(string ptxAssetName)
+     /*   public static IntPtr GetPtfxEntity(int ptfxHandle)
         {
-            var fn = Marshal.GetDelegateForFunctionPointer<fwGetAssetIndexFunc>(fwGetAssetIndexPtr);
+            return Marshal.ReadIntPtr(_getPooledPtfxAddress(ptfxHandle));
+        }
 
-            ptfxAssetStore assetStore = Marshal.PtrToStructure<ptfxAssetStore>(ptfxAssetStorePtr);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void SetPtfxPosition(int ptfxHandle, Vector3 position)
+        {
+            IntPtr pooledFx = _getPooledPtfxAddress(ptfxHandle);
+
+            if (pooledFx != IntPtr.Zero)
+            {
+
+                IntPtr entity = Marshal.ReadIntPtr(pooledFx + 0x20);
+
+                if (entity != IntPtr.Zero)
+                {
+
+                    *(float*)(entity + 0x90) = position.X;
+                    *(float*)(entity + 0x94) = position.Y;
+                    *(float*)(entity + 0x98) = position.Z;
+                }
+            }
+
+            //  Marshal.StructureToPtr(position, (entity + 0x90), true);
+        }
+        //   Marshal.Copy(new float[] { position.X, position.Y, position.Z }, 0, entity + 0x90, 3);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3 GetPtfxPosition(int ptfxHandle)
+        {
+            IntPtr pooledFx = _getPooledPtfxAddress(ptfxHandle);
+            IntPtr entity = Marshal.ReadIntPtr(pooledFx + 0x20);
+            return (Vector3)Marshal.PtrToStructure(entity + 0x90, typeof(Vector3));
+        }
+        */
+
+        private static PgDictionary* GetPtfxRuleDictionary(string ptxAssetName)
+        {
+            PtfxAssetStore assetStore = Marshal.PtrToStructure<PtfxAssetStore>(_ptfxAssetStorePtr);
 
             int index;
 
-            fn(ptfxAssetStorePtr, out index, new StringBuilder(ptxAssetName));
+            _fwGetAssetIndex(_ptfxAssetStorePtr, out index, new StringBuilder(ptxAssetName));
 
             //Logger.Log(string.Format("GetPtfxRuleDictionaryItems() - fwGetAssetIndex returned \'{0}\' for asset \"{1}\".", index, ptxAssetName));
 
-            IntPtr ptxFXListPtr = Marshal.ReadIntPtr(assetStore.Items + assetStore.ItemSize * index);
+            IntPtr ptxFxListPtr = Marshal.ReadIntPtr(assetStore.Items + assetStore.ItemSize * index);
 
-            return (pgDictionary*)Marshal.ReadIntPtr(ptxFXListPtr + 0x48);
+            return (PgDictionary*)Marshal.ReadIntPtr(ptxFxListPtr + 0x48);
         }
 
-        public static bool FindPtxEffectRule(pgDictionary* ptxRulesDict, string fxName, out IntPtr result)
+        public static bool FindPtxEffectRule(PgDictionary* ptxRulesDict, string fxName, out IntPtr result)
         {
             IntPtr itAddress;
 
@@ -94,13 +146,13 @@ namespace TornadoScript.Memory
             return false;
         }
 
-        private static ptxEventEmitter* GetPtfxEventEmitterByName(IntPtr ptxAssetRulePtr, string particleName)
+        private static PtxEventEmitter* GetPtfxEventEmitterByName(IntPtr ptxAssetRulePtr, string particleName)
         {
-            ptxEffectRule ptxRule = Marshal.PtrToStructure<ptxEffectRule>(ptxAssetRulePtr);
+            PtxEffectRule ptxRule = Marshal.PtrToStructure<PtxEffectRule>(ptxAssetRulePtr);
 
             for (int i = 0; i < ptxRule.EmittersCount; i++)
             {
-                ptxEventEmitter* emitter = ptxRule.Emitters[i];
+                PtxEventEmitter* emitter = ptxRule.Emitters[i];
 
                 string szName = Marshal.PtrToStringAnsi(emitter->SzEmitterName);
 
@@ -113,11 +165,11 @@ namespace TornadoScript.Memory
             return null;
         }
 
-        public static void PatchPTFX()
+        public static void PatchPtfx()
         {
             //Logger.Log("PatchPTFX() - Patching PTFX...");
 
-            pgDictionary* ptxRulesDict = GetPtfxRuleDictionary("core");
+            PgDictionary* ptxRulesDict = GetPtfxRuleDictionary("core");
 
             IntPtr result;
 
@@ -125,8 +177,8 @@ namespace TornadoScript.Memory
             {
                 //Logger.Log("PatchPTFX() - Found particle asset rule...");
 
-                Color color = Color.FromArgb(230, Color.Black);
-
+                Color color = Color.FromArgb(230, 47, 46, 51);
+                
                 //  SetPtxParticleEmitterColour(result, "ent_amb_smoke_foundry_end", Color.Black);
 
                 //  SetPtxParticleEmitterColour(result, "ent_amb_smoke_foundry_core", Color.Black);
@@ -142,13 +194,13 @@ namespace TornadoScript.Memory
         {
             //Logger.Log(string.Format("SetPtxParticleEmitterColour() - Setting colour for emitter \"{0}\" to ({1}, {2}, {3})", particleName, colour.R, colour.G, colour.B));
 
-            ptxEventEmitter* emitter = GetPtfxEventEmitterByName(ptfxRule, particleName);
+            PtxEventEmitter* emitter = GetPtfxEventEmitterByName(ptfxRule, particleName);
 
             int behaviourHash = Game.GenerateHash("ptxu_Colour");
 
             for (int i = 0; i < emitter->ParticleRule->BehavioursCount; i++)
             {
-                ptxBehaviour* behaviour = emitter->ParticleRule->Behaviours[i];
+                PtxBehaviour* behaviour = emitter->ParticleRule->Behaviours[i];
 
                 if (behaviour->HashName == (uint)behaviourHash)
                 {

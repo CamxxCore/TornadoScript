@@ -8,42 +8,42 @@ using ScriptCore;
 
 namespace TornadoScript.Script
 {
-    public class TVortex : ScriptExtension, IDisposable
+    public class Vortex : ScriptExtension
     {
         /// <summary>
         /// Scale of the vortex forces.
         /// </summary>
-        public float ForceScale { get; } = 1.0f;
+        public float ForceScale { get; } = 4.0f;
 
         /// <summary>
         /// Maximum distance entites must be from the vortex before we start using forces on them.
         /// </summary>
-        public float MaxEntityDist { get; } = 57.0f;
+       // public float MaxEntityDist { get; } = 57.0f;
 
         /// <summary>
         /// Maximum distance entites must be from the vortex before we start using internal vortext forces on them.
         /// </summary>
-        public float InternalForcesDist { get; } = 7.0f;
+        public float InternalForcesDist { get; } = 5.0f;
 
         /// <summary>
         /// Max particle layers in the vortex.
         /// </summary>
-        public int MaxLayers { get; } = 43;
+        public int MaxLayers { get; } = 47;
 
         /// <summary>
         /// The amount of space between particle layers in the vortex.
         /// </summary>
-        public float LayerSize { get; } = 21f;
+        public float LayerSize { get; } = 22f;
 
         /// <summary>
-        /// Amount of <see cref="TParticle"/> objects to be placed around the circumference of a layer in the vortex.
+        /// Amount of <see cref="Particle"/> objects to be placed around the circumference of a layer in the vortex.
         /// </summary>
         public int ParticleCount { get; } = 9;
 
         /// <summary>
         /// Max height.
         /// </summary>
-        public float Height { get { return MaxLayers * LayerSize; } }
+        public float Height => MaxLayers * LayerSize;
 
         /// <summary>
         /// Eliptical radius width.
@@ -60,125 +60,163 @@ namespace TornadoScript.Script
         /// </summary>
         public float Speed { get; set; } = 2.4f;
 
-        private int shockingEventHandle = -1;
+        readonly List<Particle> _particles = new List<Particle>();
 
-        List<TParticle> particles = new List<TParticle>();
+        readonly List<GameSound> _loadedSounds = new List<GameSound>();
 
-        List<GameSound> loadedSounds = new List<GameSound>();
+        private int _nextUpdateTime;
 
-        private int nextUpdateTime;
-
-        private List<Entity> activeEntities = new List<Entity>();
-
-        Vector3 position, destination;
-
-        public Vector3 Position { get { return position; } }
-
-        private readonly Ped Player = Game.Player.Character;
-
-        public TVortex(Vector3 initialPosition)
+        private struct ActiveEntity
         {
-            position = initialPosition;
-            destination = Util.GetRandomPositionFromCoords(initialPosition, 10.0f);
+            public ActiveEntity(Entity entity, float xBias, float yBias)
+            {
+                Entity = entity;
+                XBias = xBias;
+                YBias = yBias;
+            }
+
+            public Entity Entity { get; }
+            public float XBias { get;}
+            public float YBias { get; }
+        }
+
+        public const int MaxEntityCount = 600;
+
+        private readonly ActiveEntity[] _activeEntities = 
+            new ActiveEntity[MaxEntityCount];
+
+        private int _activeEntityCount;
+
+        Vector3 _position, _destination;
+
+        public Vector3 Position => _position;
+
+        private readonly Ped _player = Game.Player.Character;
+
+        public Vortex(Vector3 initialPosition)
+        {
+            _position = initialPosition;
+            _destination = Util.GetRandomPositionFromCoords(initialPosition, 10.0f);
         }
 
         public void Build()
         {
-            float layerSize = LayerSize;
+            var layerSize = LayerSize;
 
-            float radiusX = RadiusA;
+            var radiusX = RadiusA;
 
-            float radiusY = RadiusB;
+            var radiusY = RadiusB;
 
-            int multiplier = 360 / ParticleCount;
+            var multiplier = 361 / ParticleCount;
 
-            for (int i = 0; i < MaxLayers; i++)
+            var particleSize = 3.0f;
+
+            var particleCount = ParticleCount;
+
+            for (var i = 0; i < MaxLayers; i++)
             {
-                for (int angle = 0; angle <= ParticleCount; angle++)
+                for (var angle = 0; angle <= particleCount; angle++)
                 {
                     // increment the Z axis as we build up.
-                    var position = this.position;
+                    var position = this._position;
 
                     position.Z += layerSize * i;
 
                     // place the particles at 360 / 10 on the X axis.
                     var rotation = new Vector3(angle * multiplier, 0, 0);
 
-                    TParticle particle;
+                    Particle particle;
 
                     if (i < 2)
                     {
-                        particle = new TParticle(this, position, rotation, "scr_agencyheistb", "scr_env_agency3b_smoke", RadiusA, RadiusB, i);
+                        particle = new Particle(this, position, rotation, "scr_agencyheistb", "scr_env_agency3b_smoke", radiusX, radiusY, i);
 
-                        particle.StartFX(6.0f);
+                        particle.StartFx(4.7f);
 
-                        particles.Add(particle);
-                    }
+                        _particles.Add(particle);
 
-                    particle = new TParticle(this, position, rotation, "core", "ent_amb_smoke_foundry", radiusX, radiusY, i);
-
-                    particle.StartFX(3.0f);
-
-                    radiusX += 0.069f * (0.72f * i);
-
-                    radiusY += 0.069f * (0.72f * i);
-
-                    if (i < 1)
-                    {
                         var sound = new GameSound("Woosh_01", "FBI_HEIST_ELEVATOR_SHAFT_DEBRIS_SOUNDS");
 
                         sound.Play(particle);
 
-                        loadedSounds.Add(sound);
-
-                        if (shockingEventHandle == -1)
-                        {
-                            shockingEventHandle = Function.Call<int>(Hash.ADD_SHOCKING_EVENT_FOR_ENTITY, 114, particle.Ref, -1.0f);
-                        }
+                        _loadedSounds.Add(sound);
                     }
 
-                    particles.Add(particle);
+                    particle = new Particle(this, position, rotation, "core", "ent_amb_smoke_foundry", radiusX, radiusY, i);
+
+                    particle.StartFx(particleSize);
+
+                    radiusX += 0.080f * (0.72f * i);
+
+                    radiusY += 0.080f * (0.72f * i);
+
+                    particleSize += 0.01f * (0.12f * i);
+
+                    _particles.Add(particle);
+                }
+
+                if (i > MaxLayers - 10)
+                {
+                    particleCount += 1;
                 }
             }
         }
 
+        private void RemoveEntity(int entityIdx)
+        {
+            _activeEntityCount -= 1;
+
+            for (var i = entityIdx; i < _activeEntities.Length - 1; i++)
+            {
+                _activeEntities[i] = _activeEntities[i + 1];
+            }
+        }
+
+        private void PushBackEntity(ActiveEntity entity)
+        {
+            for (var i = _activeEntities.Length - 1; i > 0; i--)
+            {
+                _activeEntities[i] = _activeEntities[i - 1];
+            }
+
+            _activeEntities[0] = entity;
+
+            _activeEntityCount = Math.Min(_activeEntityCount + 1, _activeEntities.Length);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void CollectNearbyEntities()
+        private void CollectNearbyEntities(float maxDistanceDelta)
         {
             var entities = World.GetAllEntities();
 
-            bool entityExistsLocally = false;
-
-            for (int p = 0; p < entities.Length; p++)
+            for (var p = 0; p < entities.Length; p++)
             {
-                Vector3 entityPos = entities[p].Position;
+                var entityPos = entities[p].Position;
 
-                if (Vector2.Distance(entityPos.Vec2(), position.Vec2()) < MaxEntityDist && entities[p].HeightAboveGround < 300.0f)
+                if (!(Vector2.Distance(entityPos.Vec2(), _position.Vec2()) < maxDistanceDelta) ||
+                    !(entities[p].HeightAboveGround < 300.0f)) continue;
+
+                var entityExistsLocally = false;
+
+                for (var x = 0; x < _activeEntityCount; x++)
                 {
-                    entityExistsLocally = false;
+                    if (_activeEntities[x].Entity != entities[p]) continue;
 
-                    for (int x = 0; x < activeEntities.Count; x++)
-                    {
-                        if (activeEntities[x] == entities[p])
-                        {
-                            entityExistsLocally = true;
+                    entityExistsLocally = true;
 
-                            break;
-                        }
-                    }
-
-                    if (!entityExistsLocally)
-                    {
-                        if (entities[p] is Ped &&  entities[p].Handle != Player.Handle && !(entities[p] as Ped).IsRagdoll)
-                        {
-                            Function.Call(Hash.SET_PED_TO_RAGDOLL, entities[p].Handle, 800, 1500, 2, 1, 1, 0);
-                        }
-
-                        activeEntities.Add(entities[p]);
-                    }
+                    break;
                 }
 
-                if (entities[p] is Ped && entities[p] != Player)
+                if (entityExistsLocally) continue;
+
+                if (entities[p] is Ped && entities[p].Handle != _player.Handle && !(entities[p] as Ped).IsRagdoll)
+                {
+                    Function.Call(Hash.SET_PED_TO_RAGDOLL, entities[p].Handle, 800, 1500, 2, 1, 1, 0);
+                }
+
+                PushBackEntity(new ActiveEntity(entities[p], 3.0f * Probability.GetScalar(), 3.0f * Probability.GetScalar()));
+
+                /*   if (entities[p] is Ped && entities[p] != Player)
                 {
                     Ped ped = entities[p] as Ped;
 
@@ -198,40 +236,41 @@ namespace TornadoScript.Script
                     {
                         vehicle.Explode();
                     }
-                }
+                }*/
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void UpdatePulledEntities()
+        private void UpdatePulledEntities(float maxDistanceDelta)
         {
             float verticalForce = ScriptThread.GetVar<float>("vortexVerticalPullForce");
 
-            float horizontalForce = ScriptThread.GetVar<float>("vortexHorzizontalPullForce");
+            float horizontalForce = ScriptThread.GetVar<float>("vortexHorizontalPullForce");
 
-            Entity entity; float dist;
+            float topSpeed = ScriptThread.GetVar<float>("vortexTopEntitySpeed");
 
-            for (int e = activeEntities.Count - 1; e > -1; e--)
+            for (var e = 0; e < _activeEntityCount; e++)
             {
-                entity = activeEntities[e];
+                var entity = _activeEntities[e].Entity;
 
-                dist = Vector2.Distance(entity.Position.Vec2(), position.Vec2());
+                var dist = Vector2.Distance(entity.Position.Vec2(), _position.Vec2());
 
-                if (dist > (MaxEntityDist - 8.0f) || entity.HeightAboveGround > 300.0f)
+                if (dist > (maxDistanceDelta - 12.6f) || entity.HeightAboveGround > 300.0f)
                 {
-                    activeEntities.RemoveAt(e);
+                    RemoveEntity(e);
+
                     continue;
                 }
 
-                Vector3 targetPos = new Vector3(position.X, position.Y, entity.Position.Z);
+                var targetPos = new Vector3(_position.X + _activeEntities[e].XBias, _position.Y + _activeEntities[e].YBias, entity.Position.Z);
 
                 var direction = Vector3.Normalize(targetPos - entity.Position);
 
-                float forceBias = Probability.NextFloat();
+                var forceBias = Probability.NextFloat();
 
-                float force = ForceScale * (forceBias + (forceBias / dist));
+                var force = ForceScale * (forceBias + (forceBias / dist));
 
-                if (dist < InternalForcesDist) // if an entity is close enough to the center, eject them randomly out of the tornado...
+             /*   if (dist < InternalForcesDist) // if an entity is close enough to the center, eject them randomly out of the tornado...
                 {
                     direction = -direction;
 
@@ -241,14 +280,15 @@ namespace TornadoScript.Script
 
                     entity.ApplyForceToCenterOfMass(Vector3.Normalize(cross) * force);
 
-                    activeEntities.RemoveAt(e);
+                    RemoveEntity(e);
+
+                    continue;
                 }
 
                 else
-                {
-                    var upDir = Vector3.Normalize(new Vector3(position.X, position.Y, position.Z + 1000.0f) - entity.Position);
+                {*/
 
-                    if (entity.Handle == Player.Handle) // we won't update the player if there is something between them and the tornado...
+                    if (entity.Handle == _player.Handle) // we won't update the player if there is something between them and the tornado...
                     {
                         var raycast = World.Raycast(entity.Position, targetPos, IntersectOptions.Map);
 
@@ -257,55 +297,71 @@ namespace TornadoScript.Script
                             continue;
                         }
 
-                        verticalForce *= 0.5f;
+                        verticalForce *= 0.45f;
+
+                        horizontalForce *= 0.5f;
                     }
 
-                    entity.ApplyForce(direction * horizontalForce, new Vector3(Probability.NextFloat(), Probability.NextFloat(), 0)); // apply a directional force pulling them into the tornado...
+                if (entity.Model.IsPlane)
+                {
+                    force *= 6.0f;
+                    verticalForce *= 6.0f;
+                }
 
-                    entity.ApplyForceToCenterOfMass(upDir * force * verticalForce); // apply vertical forces
+                    entity.ApplyForce(direction * horizontalForce, new Vector3(Probability.NextFloat(), 0, Probability.GetScalar())); // apply a directional force pulling them into the tornado...
+
+                    var upDir = Vector3.Normalize(new Vector3(_position.X, _position.Y, _position.Z + 1000.0f) - entity.Position);
+
+                    entity.ApplyForceToCenterOfMass(upDir * verticalForce); // apply vertical forces
 
                     var cross = Vector3.Cross(direction, Vector3.WorldUp); //get a vector that is oriented horizontally relative to the vortex.
 
                     entity.ApplyForceToCenterOfMass(Vector3.Normalize(cross) * force * horizontalForce); // move them along side the vortex.
-                }
 
-                Function.Call(Hash.SET_ENTITY_MAX_SPEED, entity.Handle, 32.0f);
+            //    }
+
+                Function.Call(Hash.SET_ENTITY_MAX_SPEED, entity.Handle, topSpeed);
             }
         }
 
         public override void OnUpdate(int gameTime)
         {
-            if (position.DistanceTo(Player.Position) > 200.0f)
+            if (ScriptThread.GetVar<bool>("vortexMovementEnabled"))
             {
-                destination = Player.Position.Around(50.0f);
+                if (_position.DistanceTo(_player.Position) > 200.0f)
+                {
+                    _destination = _player.Position.Around(50.0f);
 
-                destination.Z = World.GetGroundHeight(destination);
+                    _destination.Z = World.GetGroundHeight(_destination) - 10.0f;
+                }
+
+                else if (_position.DistanceTo(_destination) < 15.0f)
+                {
+                    _destination = Util.GetRandomPositionFromCoords(_position, 10.0f);
+
+                    _destination.Z = World.GetGroundHeight(_destination) - 10.0f;
+                }
+
+                _position = MathEx.MoveTowards(_position, _destination, ScriptThread.GetVar<float>("vortexMoveSpeedScale") * 0.287f);
             }
 
-            else if (position.DistanceTo(destination) < 15.0f)
-            {
-                destination = Util.GetRandomPositionFromCoords(position, 10.0f);
+            float maxEntityDist = ScriptThread.GetVar<float>("vortexMaxEntityDist");
 
-                destination.Z = World.GetGroundHeight(destination);
+            if (gameTime > _nextUpdateTime)
+            {
+                CollectNearbyEntities(maxEntityDist);
+
+                _nextUpdateTime = gameTime + 800;
             }
 
-            position = MathEx.MoveTowards(position, destination, 0.287f);
-
-            if (gameTime > nextUpdateTime)
-            {
-                CollectNearbyEntities();
-
-                nextUpdateTime = gameTime + 800;
-            }
-
-            UpdatePulledEntities();
+            UpdatePulledEntities(maxEntityDist);
         }
       
         public override void Dispose()
         {
-            loadedSounds.ForEach(x => x.Destroy());
+            _loadedSounds.ForEach(x => x.Destroy());
 
-            particles.ForEach(x => x.Dispose());
+            _particles.ForEach(x => x.Dispose());
 
             base.Dispose();
         }

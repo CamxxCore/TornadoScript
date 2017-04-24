@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ScriptCore
 {
-    public delegate void ScriptExtensionEventHandler(ScriptExtension sender, EventArgs e);
+    public delegate void ScriptExtensionEventHandler(ScriptExtension sender, ScriptEventArgs e);
 
     public class ScriptExtensionEventPool : Dictionary<string, ScriptExtensionEventHandler>
     {

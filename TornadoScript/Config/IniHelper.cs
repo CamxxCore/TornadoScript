@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
 using System.Reflection;
 using System.ComponentModel;
+using System.Globalization;
 
 namespace TornadoScript.Config
 {
@@ -35,8 +35,9 @@ namespace TornadoScript.Config
         /// </summary>
         /// <param name="section">The section of the config file</param>
         /// <param name="key">The config setting</param>
+        /// <param name="defaultValue"></param>
         /// <returns></returns>
-        public static T GetConfigSetting<T>(string section, string key, T defaultValue = default(T))
+        public static T GetValue<T>(string section, string key, T defaultValue = default(T))
         {
             Type type = typeof(T);
             if (!type.IsValueType)
@@ -47,10 +48,10 @@ namespace TornadoScript.Config
 
             if (keyValue.Length > 0 && tConverter.CanConvertFrom(typeof(string)))
             {
-                return (T)tConverter.ConvertFromString(keyValue);
+                return (T)tConverter.ConvertFromString(null, CultureInfo.InvariantCulture, keyValue);
             }
 
-            else return defaultValue;
+            return defaultValue;
         }
 
         public static void Create()
@@ -58,7 +59,7 @@ namespace TornadoScript.Config
             try
             {
                 if (File.Exists(IniPath)) File.Delete(IniPath);
-                IList<string> list = Util.ReadEmbeddedResource(Properties.Resources.TornadoScript);
+                var list = Util.ReadEmbeddedResource(Properties.Resources.TornadoScript);
                 Util.WriteListToFile(list, IniPath);
             }
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Windows.Forms;
 using GTA;
 
 namespace ScriptCore
@@ -12,18 +11,19 @@ namespace ScriptCore
         /// <summary>
         /// Script extension pool.
         /// </summary>
-        private static ScriptExtensionPool extensions;
+        private static ScriptExtensionPool _extensions;
 
         /// <summary>
         /// Script vars.
         /// </summary>
-        private static ScriptVarCollection vars;
+        private static ScriptVarCollection _vars;
 
-        public ScriptThread() : base()
+        protected ScriptThread()
         {
-            extensions = new ScriptExtensionPool();
-            vars = new ScriptVarCollection();
-            Tick += (s,e) => OnUpdate(Game.GameTime);;
+            _extensions = new ScriptExtensionPool();
+            _vars = new ScriptVarCollection();
+            Tick += (s, e) => OnUpdate(Game.GameTime);
+            KeyDown += KeyPressedInternal;
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace ScriptCore
         /// <returns></returns>
         public static T Get<T>() where T : ScriptExtension
         {
-            return extensions.Get<T>();
+            return _extensions.Get<T>();
         }
 
         /// <summary>
@@ -42,28 +42,27 @@ namespace ScriptCore
         /// <param name="extension"></param>
         public static void Add(ScriptExtension extension)
         {
-            if (!extensions.Contains(extension))
-            {
-                extensions.Add(extension);
+            if (_extensions.Contains(extension)) return;
 
-                extension.OnThreadAttached();
-            }
+            extension.RegisterEvent("keydown");
+
+            _extensions.Add(extension);
+
+            extension.OnThreadAttached();
         }
 
         /// <summary>
         /// Adds a script extension to this thread.
         /// </summary>
-        /// <param name="extension"></param>
         public static void Create<T>() where T : ScriptExtension, new()
         {
-            T extension = Get<T>();
+            var extension = Get<T>();
 
-            if (extension == null)
-            {
-                extension = new T();
+            if (extension != null) return;
 
-                Add(extension);
-            }
+            extension = new T();
+
+            Add(extension);
         }
 
         /// <summary>
@@ -75,12 +74,12 @@ namespace ScriptCore
         {
             var extension = Get<T>();
 
-            if (extension == null)
-            {
-                extension = new T();
+            if (extension != null)
+                return extension;
 
-                Add(extension);
-            }
+            extension = new T();
+
+            Add(extension);
 
             return extension;
         }
@@ -89,7 +88,7 @@ namespace ScriptCore
         {
             extension.OnThreadDetached();
 
-            extensions.Remove(extension);
+            _extensions.Remove(extension);
         }
 
         /// <summary>
@@ -97,11 +96,11 @@ namespace ScriptCore
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="name">The name of the var</param>
-        /// <param name="value">The initial value</param>
         /// <param name="defaultValue">The default (reset) value</param>
+        /// <param name="readOnly"></param>
         public static void RegisterVar<T>(string name, T defaultValue, bool readOnly = false)
         {
-            vars.Add(name, new ScriptVar<T>(defaultValue, readOnly));
+            _vars.Add(name, new ScriptVar<T>(defaultValue, readOnly));
         }
 
         /// <summary>
@@ -112,11 +111,7 @@ namespace ScriptCore
         /// <returns></returns>
         public static ScriptVar<T> GetVar<T>(string name)
         {
-            ScriptVar<T> foundVar = vars.Get<T>(name);
-
-            Debug.Assert(foundVar != null, "Script variable \"" + name + "\" not found.");
-
-            return foundVar;
+            return _vars.Get<T>(name);
         }
 
         /// <summary>
@@ -124,18 +119,26 @@ namespace ScriptCore
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="name"></param>
+        /// <param name="value"></param>
         /// <returns></returns>
         public static bool SetVar<T>(string name, T value)
         {
-            ScriptVar<T> foundVar = GetVar<T>(name);
+            var foundVar = GetVar<T>(name);
 
-            if (!foundVar.ReadOnly)
+            if (foundVar.ReadOnly)
+                return false;
+
+            foundVar.Value = value;
+
+            return true;
+        }
+
+        internal virtual void KeyPressedInternal(object sender, KeyEventArgs e)
+        {
+            foreach (ScriptExtension s in _extensions)
             {
-                foundVar.Value = value;
-                return true;
+                s.NotifyEvent("keydown", new ScriptEventArgs(e));
             }
-
-            return false;
         }
 
         /// <summary>
@@ -143,9 +146,9 @@ namespace ScriptCore
         /// </summary>
         public virtual void OnUpdate(int gameTime)
         {
-            for (int i = 0; i < extensions.Count; i++)
+            for (int i = 0; i < _extensions.Count; i++)
             {
-                extensions[i].OnUpdate(gameTime);
+                _extensions[i].OnUpdate(gameTime);
             }
         }
 
@@ -155,11 +158,9 @@ namespace ScriptCore
         /// <param name="A_0"></param>
         protected override void Dispose(bool A_0)
         {
-            Tick -= (s, e) => OnUpdate(Game.GameTime);
-
-            for (int i = 0; i < extensions.Count; i++)
+            for (int i = _extensions.Count - 1; i > -1; i--)
             {
-                extensions[i].Dispose();
+                _extensions[i].Dispose();
             }
 
             base.Dispose(A_0);

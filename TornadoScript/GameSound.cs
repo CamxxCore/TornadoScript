@@ -6,18 +6,18 @@ namespace TornadoScript
 {
     public class GameSound
     {
-        private string soundSet;
-        private string sound;
-        private int soundID;
+        private string _soundSet;
+        private string _sound;
+        private int _soundId;
 
         public bool Active { get; private set; }
 
         public GameSound(string sound, string soundSet)
         {
             this.Active = false;
-            this.sound = sound;
-            this.soundSet = soundSet;
-            this.soundID = -1;
+            this._sound = sound;
+            this._soundSet = soundSet;
+            this._soundId = -1;
         }
 
         public static void Load(string audioBank)
@@ -32,29 +32,29 @@ namespace TornadoScript
 
         public static void Load(GameSound sound)
         {
-            Function.Call(Hash.REQUEST_SCRIPT_AUDIO_BANK, sound.soundSet, false);
+            Function.Call(Hash.REQUEST_SCRIPT_AUDIO_BANK, sound._soundSet, false);
         }
 
         public void Play(Entity ent)
         {
-            soundID = Function.Call<int>(Hash.GET_SOUND_ID);
-            Function.Call(Hash.PLAY_SOUND_FROM_ENTITY, soundID, sound, ent.Handle, 0, 0, 0);
+            _soundId = Function.Call<int>(Hash.GET_SOUND_ID);
+            Function.Call(Hash.PLAY_SOUND_FROM_ENTITY, _soundId, _sound, ent.Handle, 0, 0, 0);
             Active = true;
         }
 
         public void Play(Vector3 position)
         {
-            soundID = Function.Call<int>(Hash.GET_SOUND_ID);
-            Function.Call(Hash.PLAY_SOUND_FROM_COORD, soundID, sound, position.X, position.Y, position.Z, 0, 0, 0, 0);
+            _soundId = Function.Call<int>(Hash.GET_SOUND_ID);
+            Function.Call(Hash.PLAY_SOUND_FROM_COORD, _soundId, _sound, position.X, position.Y, position.Z, 0, 0, 0, 0);
             Active = true;
         }
 
         public void Destroy()
         {
-            if (soundID == -1) return;
-            Function.Call(Hash.STOP_SOUND, soundID);
-            Function.Call(Hash.RELEASE_SOUND_ID, soundID);
-            soundID = -1;
+            if (_soundId == -1) return;
+            Function.Call(Hash.STOP_SOUND, _soundId);
+            Function.Call(Hash.RELEASE_SOUND_ID, _soundId);
+            _soundId = -1;
             Active = false;
         }
     }

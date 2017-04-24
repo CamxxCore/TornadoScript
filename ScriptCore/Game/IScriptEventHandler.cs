@@ -11,6 +11,6 @@ namespace ScriptCore
 
         void NotifyEvent(string name);
 
-        void NotifyEvent(string name, EventArgs args);
+        void NotifyEvent(string name, ScriptEventArgs args);
     }
 }

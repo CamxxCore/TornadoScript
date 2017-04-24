@@ -4,9 +4,9 @@ namespace TornadoScript
 {
     public static partial class Probability
     {
-        private static int lastCheckedTime = 0;
+        private static int _lastCheckedTime = 0;
 
-        private static Random rand = new Random();
+        private static Random _rand = new Random();
 
         /// <summary>
         /// Gets a random float value
@@ -23,7 +23,7 @@ namespace TornadoScript
         /// <returns></returns>
         public static float NextFloat()
         {
-            return (float)rand.NextDouble();
+            return (float)_rand.NextDouble();
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace TornadoScript
         /// <returns></returns>
         public static float GetScalar()
         {
-            double val = rand.NextDouble();
+            double val = _rand.NextDouble();
             val -= 0.5;
             val *= 2;
             return (float) val;
@@ -89,12 +89,15 @@ namespace TornadoScript
 
         public static bool GetBoolean(float chance, int checkInterval)
         {
-            if (checkInterval > 0 && Environment.TickCount - lastCheckedTime < checkInterval)
+            if (checkInterval > 0)
             {
-                return false;
-            }
+                if (Environment.TickCount - _lastCheckedTime < checkInterval)
+                {
+                    return false;
+                }
 
-            lastCheckedTime = Environment.TickCount;
+                else _lastCheckedTime = Environment.TickCount;
+            }
 
             return StrongRandom.Next(0, 1000) < (int)(chance * 1000.0f);
         }

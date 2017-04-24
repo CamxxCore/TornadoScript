@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace TornadoScript.Memory
 {
     [StructLayout(LayoutKind.Explicit)]
-    public struct ptfxAssetStore
+    public struct PtfxAssetStore
     {
         [FieldOffset(0x10)]
         public int MaxItems; //0x10-0x14
@@ -27,30 +27,30 @@ namespace TornadoScript.Memory
     };
 
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct ptxVarVector
+    public unsafe struct PtxVarVector
     {
         public fixed float UnkMask[4];
         public fixed float Value[4];
     }; //sizeof=0x10
 
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct ptxKeyframeVars
+    public unsafe struct PtxKeyframeVars
     {
-        public ptxVarVector* Vectors;
+        public PtxVarVector* Vectors;
         public short UnkCount;
         public short MaxVars;
     };
 
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct ptxKeyframeData
+    public unsafe struct PtxKeyframeData
     {
-        public ptxKeyframeVars* Vars;
+        public PtxKeyframeVars* Vars;
         public short UnkCount;
         public short MaxVars;
     };
 
     [StructLayout(LayoutKind.Explicit)]
-    public struct ptxVarVectorKFP
+    public struct PtxVarVectorKfp
     {
         [FieldOffset(0x0)]
         public IntPtr SzArg1; //0x0-0x28
@@ -63,43 +63,43 @@ namespace TornadoScript.Memory
         [FieldOffset(0x10)]
         public IntPtr SzArg5;
         [FieldOffset(0x40)]
-        public ptxVarVector data;
+        public PtxVarVector data;
     };
 
     [StructLayout(LayoutKind.Explicit)]
-    public unsafe struct ptxKeyframeProp
+    public unsafe struct PtxKeyframeProp
     {
         [FieldOffset(0x18)]
-        public ptxKeyframeData* F1;
+        public PtxKeyframeData* F1;
         [FieldOffset(0x20)]
-        public ptxKeyframeData* F2;
+        public PtxKeyframeData* F2;
         [FieldOffset(0x28)]
-        public ptxKeyframeData* F3;
+        public PtxKeyframeData* F3;
         [FieldOffset(0x30)]
-        public ptxKeyframeData* F4;
+        public PtxKeyframeData* F4;
         [FieldOffset(0x70)]
-        public ptxKeyframeVars Defaults;
+        public PtxKeyframeVars Defaults;
         [FieldOffset(0x78)]
         public short VarsCount;
         [FieldOffset(0x7A)]
         public short UnkCount;
         [FieldOffset(0x88)]
-        public ptxVarVectorKFP VarsKFP;
+        public PtxVarVectorKfp VarsKFP;
     };
 
     [StructLayout(LayoutKind.Explicit)]
-    public unsafe struct ptxBehaviour
+    public unsafe struct PtxBehaviour
     {
         [FieldOffset(0x8)]
         public uint HashName;
         [FieldOffset(0x10)]
-        public ptxKeyframeProp** KeyframeProps; //0x10-0x18
+        public PtxKeyframeProp** KeyframeProps; //0x10-0x18
         [FieldOffset(0x18)]
         public short NumFrames; //0x18-0x1A
         [FieldOffset(0x1A)]
         public short MaxFrames; //0x1A-0x1C assumed
         [FieldOffset(0xA0)]
-        public ptxVarVector* UnkVar; //0xA0-0xA8
+        public PtxVarVector* UnkVar; //0xA0-0xA8
         [FieldOffset(0xA8)]
         public short VarsCount;
         [FieldOffset(0xAA)]
@@ -107,13 +107,13 @@ namespace TornadoScript.Memory
     };
 
     [StructLayout(LayoutKind.Explicit)]
-    public unsafe struct ptxEffectRule
+    public unsafe struct PtxEffectRule
     {
         [FieldOffset(0x20)]
         [MarshalAs(UnmanagedType.LPStr)]
         public string EffectName; //0x20-0x28
         [FieldOffset(0x38)]
-        public ptxEventEmitter** Emitters;
+        public PtxEventEmitter** Emitters;
         [FieldOffset(0x40)]
         public short EmittersCount;
         [FieldOffset(0x42)]
@@ -121,14 +121,14 @@ namespace TornadoScript.Memory
     };
 
     [StructLayout(LayoutKind.Explicit)]
-    public unsafe struct ptxParticleRule
+    public unsafe struct PtxParticleRule
     {
         [FieldOffset(0x20)]
         public IntPtr Spawner; //0x20 ptxEffectSpawner
         [FieldOffset(0x90)]
         public IntPtr Spawner1; //0x90-0x100  ptxEffectSpawner
         [FieldOffset(0x128)]
-        public ptxBehaviour** Behaviours; //0x128-0x130
+        public PtxBehaviour** Behaviours; //0x128-0x130
         [FieldOffset(0x130)]
         public short BehavioursCount; //0x130-0x132
         [FieldOffset(0x132)]
@@ -136,7 +136,7 @@ namespace TornadoScript.Memory
     };
 
     [StructLayout(LayoutKind.Explicit)]
-    public unsafe struct ptxEventEmitter
+    public unsafe struct PtxEventEmitter
     {
         [FieldOffset(0x8)]
         public int Index; //0x8-0xC
@@ -149,7 +149,7 @@ namespace TornadoScript.Memory
         [FieldOffset(0x40)]
         public IntPtr EmitterRule; //0x40-0x48
         [FieldOffset(0x48)]
-        public ptxParticleRule* ParticleRule; //0x48-0x50
+        public PtxParticleRule* ParticleRule; //0x48-0x50
         [FieldOffset(0x50)]
         public float MoveSpeedScale; //0x50-0x54
         [FieldOffset(0x54)]
@@ -161,7 +161,7 @@ namespace TornadoScript.Memory
     };
 
     [StructLayout(LayoutKind.Explicit)]
-    public struct pgDictionary
+    public struct PgDictionary
     {
         [FieldOffset(0x30)]
         public IntPtr Items; //0x30-0x38
@@ -170,7 +170,7 @@ namespace TornadoScript.Memory
     };
 
     [StructLayout(LayoutKind.Sequential)]
-    struct fwPool
+    struct FwPool
     {
         public long Items; //0x0-0x8
         public IntPtr BitMap; //0x8-0x10
