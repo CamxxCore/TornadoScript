@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ScriptCore
+﻿namespace TornadoScript.ScriptCore.Game
 {
     /// <summary>
     /// Represents a handler of script events.

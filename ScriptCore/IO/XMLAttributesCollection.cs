@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace ScriptCore.IO
+namespace TornadoScript.ScriptCore.IO
 {
     /// <summary>
     /// Class to hold XML attributes.

@@ -1,17 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace AirSuperiority.Core.IO
+namespace TornadoScript.ScriptCore.IO
 {
     public class EncryptedFileStream
     {
         private readonly FileStream stream;
-
         private readonly string DataHash = "dkfcn7tz";
         private readonly string Salt = "Delta0xa44";
         private readonly string VIKey = "@pQsQDF6vpfJA84A";
@@ -114,6 +111,7 @@ namespace AirSuperiority.Core.IO
                     cipherTextBytes = memoryStream.ToArray();
                     cryptoStream.Close();
                 }
+
                 memoryStream.Close();
             }
             return Convert.ToBase64String(cipherTextBytes);
@@ -131,10 +129,11 @@ namespace AirSuperiority.Core.IO
             byte[] plainTextBytes = new byte[cipherTextBytes.Length];
 
             int decryptedByteCount = cryptoStream.Read(plainTextBytes, 0, plainTextBytes.Length);
+
             memoryStream.Close();
             cryptoStream.Close();
+
             return Encoding.UTF8.GetString(plainTextBytes, 0, decryptedByteCount).TrimEnd("\0".ToCharArray());
         }
-
     }
 }

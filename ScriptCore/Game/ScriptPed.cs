@@ -1,6 +1,6 @@
 ﻿using GTA;
 
-namespace ScriptCore
+namespace TornadoScript.ScriptCore.Game
 {
     /// <summary>
     /// Represents a ped.
@@ -25,7 +25,7 @@ namespace ScriptCore
         /// </summary>
         public bool IsHuman
         {
-            get { return Ref == Game.Player.Character; }
+            get { return Ref == GTA.Game.Player.Character; }
         }
 
         public ScriptPed(Ped baseRef) : base(baseRef)

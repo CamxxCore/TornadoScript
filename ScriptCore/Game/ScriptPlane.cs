@@ -1,8 +1,7 @@
-﻿using System;
-using GTA;
+﻿using GTA;
 using GTA.Native;
 
-namespace ScriptCore
+namespace TornadoScript.ScriptCore.Game
 {
     /// <summary>
     /// Represents a plane.

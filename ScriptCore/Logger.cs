@@ -1,9 +1,8 @@
 ﻿using System;
-using System.IO;
-using System.Reflection;
 using System.Diagnostics;
+using System.Reflection;
 
-namespace AirSuperiority.Core
+namespace TornadoScript.ScriptCore
 {
     /// <summary>
     /// Static logger class that allows direct logging of anything to a text file
