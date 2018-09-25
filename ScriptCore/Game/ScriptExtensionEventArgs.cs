@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ScriptCore
+namespace TornadoScript.ScriptCore.Game
 {
     public delegate void ScriptComponentEventHandler(ScriptThread sender, ScriptComponentEventArgs args);
 

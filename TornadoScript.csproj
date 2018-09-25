@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TornadoScript</RootNamespace>
     <AssemblyName>TornadoScript</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -39,6 +40,8 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>7.1</LangVersion>
+    <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -49,24 +52,32 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ScriptHookVDotNet">
-      <HintPath>..\..\..\..\..\Desktop\Files\ScriptHookVDotNet.dll</HintPath>
+    <Reference Include="NAudio, Version=1.8.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>E:\Program Files\Rockstar Games\Grand Theft Auto V\scripts\NAudio.dll</HintPath>
+    </Reference>
+    <Reference Include="ScriptHookVDotNet2, Version=2.10.6.0, Culture=neutral, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\Desktop\Projects\ScriptHookVDotNet2.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="UIAutomationClient" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="ScriptCore\Game\IScriptComponent.cs" />
     <Compile Include="ScriptCore\Game\IScriptEntity.cs" />
     <Compile Include="ScriptCore\Game\IScriptEventHandler.cs" />
@@ -92,33 +103,33 @@
     <Compile Include="ScriptCore\IO\XMLSimpleMetadata.cs" />
     <Compile Include="ScriptCore\IO\XMLSimpleParser.cs" />
     <Compile Include="ScriptCore\Logger.cs" />
-    <Compile Include="TornadoScript\GenericEventArgs.cs" />
-    <Compile Include="TornadoScript\Commands\CommandManager.cs" />
-    <Compile Include="TornadoScript\Frontend\FrontendInput.cs" />
-    <Compile Include="TornadoScript\Frontend\FrontendManager.cs" />
-    <Compile Include="TornadoScript\Frontend\FrontendOutput.cs" />
-    <Compile Include="TornadoScript\Win32Native.cs" />
-    <Compile Include="TornadoScript\Memory\NativeTypes.cs" />
-    <Compile Include="TornadoScript\Memory\MemoryAccess.cs" />
-    <Compile Include="TornadoScript\Memory\Pattern.cs" />
-    <Compile Include="TornadoScript\MathEx.cs" />
-    <Compile Include="TornadoScript\Probability.cs" />
-    <Compile Include="TornadoScript\GameSound.cs" />
-    <Compile Include="TornadoScript\LoopedParticle.cs" />
+    <Compile Include="ScriptMain\Commands\CommandManager.cs" />
+    <Compile Include="ScriptMain\Commands\Commands.cs" />
+    <Compile Include="ScriptMain\Frontend\FrontendInput.cs" />
+    <Compile Include="ScriptMain\Frontend\FrontendManager.cs" />
+    <Compile Include="ScriptMain\Frontend\FrontendOutput.cs" />
+    <Compile Include="ScriptMain\Script\TDebris.cs" />
+    <Compile Include="ScriptMain\Utility\Audio\WavePlayer.cs" />
+    <Compile Include="ScriptMain\Utility\Audio\SoundManager.cs" />
+    <Compile Include="ScriptMain\Utility\Audio\LoopStream.cs" />
+    <Compile Include="ScriptMain\Utility\ShapeTestEx.cs" />
+    <Compile Include="ScriptMain\Utility\Win32Native.cs" />
+    <Compile Include="ScriptMain\Memory\NativeTypes.cs" />
+    <Compile Include="ScriptMain\Memory\MemoryAccess.cs" />
+    <Compile Include="ScriptMain\Memory\Pattern.cs" />
+    <Compile Include="ScriptMain\Utility\MathEx.cs" />
+    <Compile Include="ScriptMain\Utility\Probability.cs" />
+    <Compile Include="ScriptMain\Utility\LoopedParticle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="TornadoScript\Config\IniFile.cs" />
-    <Compile Include="TornadoScript\Config\IniHelper.cs" />
-    <Compile Include="TornadoScript\Script\TMonitor.cs" />
-    <Compile Include="TornadoScript\Script\TParticle.cs" />
-    <Compile Include="TornadoScript\Script\TScript.cs" />
-    <Compile Include="TornadoScript\StrongRandom.cs" />
-    <Compile Include="TornadoScript\Util.cs" />
-    <Compile Include="TornadoScript\Script\TVortex.cs" />
+    <Compile Include="ScriptMain\Config\IniFile.cs" />
+    <Compile Include="ScriptMain\Config\IniHelper.cs" />
+    <Compile Include="ScriptMain\Script\TFactory.cs" />
+    <Compile Include="ScriptMain\Script\TParticle.cs" />
+    <Compile Include="ScriptMain\Script\TScript.cs" />
+    <Compile Include="ScriptMain\Utility\StrongRandom.cs" />
+    <Compile Include="ScriptMain\Utility\Helpers.cs" />
+    <Compile Include="ScriptMain\Script\TVortex.cs" />
+    <Compile Include="ScriptMain\WinHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -127,12 +138,12 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Resources\TornadoScript.ini" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(TargetPath)" "C:\Program Files\Rockstar Games\Grand Theft Auto V\scripts\$(ProjectName).dll"</PostBuildEvent>
+    <PostBuildEvent>copy "$(TargetPath)" "E:\Program Files\Rockstar Games\Grand Theft Auto V\scripts\$(ProjectName).dll"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

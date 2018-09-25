@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Security.Cryptography;
 
-namespace TornadoScript
+namespace TornadoScript.ScriptMain.Utility
 {
     /// <summary>
     /// http://stackoverflow.com/questions/1399039/best-way-to-seed-random-in-singleton

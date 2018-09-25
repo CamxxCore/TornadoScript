@@ -1,6 +1,6 @@
 ﻿using GTA;
 
-namespace ScriptCore
+namespace TornadoScript.ScriptCore.Game
 {
     /// <summary>
     /// Represents a prop.

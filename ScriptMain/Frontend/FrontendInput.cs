@@ -2,37 +2,35 @@
 using GTA;
 using GTA.Native;
 
-namespace TornadoScript.Frontend
+namespace TornadoScript.ScriptMain.Frontend
 {
     public class FrontendInput
     {
-        const int TextActiveTime = 30000;
+        private const int CursorPulseSpeed = 300;
 
-        const int CursorPulseSpeed = 300;
+        private bool _cursorState;
 
-        private bool _cursorState = false;
+        private bool _active;
 
-        private bool _active = false;
+        private string _str = "";
 
-        string _str = "";
+        private int _lastCursorPulse, _currentTextWidth;
 
-        private int _lastCursorPulse = 0,
-            _currentTextWidth = 0,
-            _shownTime = 0;
+        private readonly UIText _text = new UIText("", new Point(14, 5), 0.3f);
 
-        private UIText _text = new UIText("", new Point(14, 5), 0.3f);
+        private readonly UIRectangle _cursorRect = new UIRectangle(new Point(14, 5), new Size(1, 15), Color.Empty);
 
-        private UIRectangle _cursor = new UIRectangle(new Point(14, 5), new Size(1, 15), Color.Empty);
+        private readonly UIContainer _backgroundContainer = new UIContainer(new Point(20, 20), new Size(600, 30), Color.Empty);
 
-        private UIContainer _backsplash = new UIContainer(new Point(20, 20), new Size(600, 30), Color.Empty);
+        private readonly string WatermarkText = "Tornado Script Console - Press Backspace to exit";
 
         /// <summary>
         /// Initialize the class.
         /// </summary>
         public FrontendInput()
         {
-            _backsplash.Items.Add(_text);
-            _backsplash.Items.Add(_cursor);
+            _backgroundContainer.Items.Add(_text);
+            _backgroundContainer.Items.Add(_cursorRect);
         }
 
         /// <summary>
@@ -42,22 +40,17 @@ namespace TornadoScript.Frontend
         public void AddLine(string text)
         {
             Show();
-
             _str = text;
-
             _currentTextWidth = GetTextWidth();
         }
 
         /// <summary>
         /// Add a single character to the input box.
         /// </summary>
-        /// <param name="text"></param>
         public void AddChar(char c)
         {
             Show();
-
             _str += c;
-
             _currentTextWidth = GetTextWidth();
         }
 
@@ -78,7 +71,6 @@ namespace TornadoScript.Frontend
             if (_str.Length > 0)
             {
                 _str = _str.Substring(0, _str.Length - 1);
-
                 _currentTextWidth = GetTextWidth();
             }
         }
@@ -88,13 +80,10 @@ namespace TornadoScript.Frontend
         /// </summary>
         public void Show()
         {
-            _backsplash.Color = Color.FromArgb(140, 52, 144, 2);
+            _backgroundContainer.Color = Color.FromArgb(140, 52, 144, 2);
 
             SetCursorColor(Color.White);
-
             SetTextColor(Color.White);
-
-            _shownTime = Game.GameTime;
 
             _active = true;
         }
@@ -104,10 +93,9 @@ namespace TornadoScript.Frontend
         /// </summary>
         public void Hide()
         {
-            _backsplash.Color = Color.Empty;
+            _backgroundContainer.Color = Color.Empty;
 
             SetCursorColor(Color.Empty);
-
             SetTextColor(Color.Empty);
 
             _active = false;
@@ -119,7 +107,6 @@ namespace TornadoScript.Frontend
         public void Clear()
         {
             _str = string.Empty;
-
             _currentTextWidth = GetTextWidth();
         }
 
@@ -138,7 +125,7 @@ namespace TornadoScript.Frontend
         /// <param name="color"></param>
         private void SetCursorColor(Color color)
         {
-            _cursor.Color = color;
+            _cursorRect.Color = color;
         }
 
         private int GetTextWidth()
@@ -148,6 +135,7 @@ namespace TornadoScript.Frontend
             Function.Call(Hash._ADD_TEXT_COMPONENT_STRING, _str);
 
             Function.Call(Hash.SET_TEXT_FONT, (int)_text.Font);
+
             Function.Call(Hash.SET_TEXT_SCALE, _text.Scale, _text.Scale);
 
             return (int) (UI.WIDTH * Function.Call<float>((Hash)0x85F061DA64ED2F67, (int)_text.Font));
@@ -158,25 +146,24 @@ namespace TornadoScript.Frontend
         /// </summary>
         public void Update(int gameTime)
         {
-            if (_active)
+            if (!_active) return;
+
+            Game.DisableAllControlsThisFrame(0);
+
+            _text.Caption =  _str.Length > 0 ? _str : WatermarkText;
+
+            _cursorRect.Position = new Point(14 + _currentTextWidth, 7);
+
+            if (gameTime - _lastCursorPulse > CursorPulseSpeed && _text.Color.A > 0)
             {
-                Game.DisableAllControlsThisFrame(0);
+                _cursorState = !_cursorState;
 
-                _text.Caption = _str;
+                _cursorRect.Color = _cursorState ? Color.FromArgb(255, _cursorRect.Color) : Color.FromArgb(0, _cursorRect.Color);
 
-                _cursor.Position = new Point(14 + _currentTextWidth, 7);
-
-                if (gameTime - _lastCursorPulse > CursorPulseSpeed && _text.Color.A > 0)
-                {
-                    _cursorState = !_cursorState;
-
-                    _cursor.Color = _cursorState ? Color.FromArgb(255, _cursor.Color) : Color.FromArgb(0, _cursor.Color);
-
-                    _lastCursorPulse = gameTime;
-                }
-
-                _backsplash.Draw();
+                _lastCursorPulse = gameTime;
             }
+
+            _backgroundContainer.Draw();
         }
     }
 }

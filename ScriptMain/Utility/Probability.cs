@@ -1,12 +1,12 @@
 ﻿using System;
 
-namespace TornadoScript
+namespace TornadoScript.ScriptMain.Utility
 {
-    public static partial class Probability
+    public static class Probability
     {
-        private static int _lastCheckedTime = 0;
+        private static int _lastCheckedTime;
 
-        private static Random _rand = new Random();
+        private static readonly Random Rand = new Random();
 
         /// <summary>
         /// Gets a random float value
@@ -17,13 +17,23 @@ namespace TornadoScript
             return GetScalar() * float.MaxValue;
         }
 
+
+        /// <summary>
+        /// Gets a random float value in range
+        /// </summary>
+        /// <returns></returns>
+        public static float GetFloat(float min, float max)
+        {
+            return NextFloat() * (max - min) + min;
+        }
+
         /// <summary>
         /// Gets a random float value from 0.0 to 1.0
         /// </summary>
         /// <returns></returns>
         public static float NextFloat()
         {
-            return (float)_rand.NextDouble();
+            return (float)Rand.NextDouble();
         }
 
         /// <summary>
@@ -32,7 +42,7 @@ namespace TornadoScript
         /// <returns></returns>
         public static float GetScalar()
         {
-            double val = _rand.NextDouble();
+            var val = Rand.NextDouble();
             val -= 0.5;
             val *= 2;
             return (float) val;
@@ -63,7 +73,7 @@ namespace TornadoScript
         /// <returns></returns>
         public static int GetInteger(int min, int max, bool abs)
         {
-            int result = StrongRandom.Next(min, max);         
+            var result = StrongRandom.Next(min, max);         
             return abs ? Math.Abs(result) : result;
         }
 
@@ -89,15 +99,13 @@ namespace TornadoScript
 
         public static bool GetBoolean(float chance, int checkInterval)
         {
-            if (checkInterval > 0)
-            {
-                if (Environment.TickCount - _lastCheckedTime < checkInterval)
-                {
-                    return false;
-                }
+            if (checkInterval <= 0)
+                return StrongRandom.Next(0, 1000) < (int) (chance * 1000.0f);
 
-                else _lastCheckedTime = Environment.TickCount;
-            }
+            if (Environment.TickCount - _lastCheckedTime < checkInterval)
+                return false;
+
+            _lastCheckedTime = Environment.TickCount;
 
             return StrongRandom.Next(0, 1000) < (int)(chance * 1000.0f);
         }

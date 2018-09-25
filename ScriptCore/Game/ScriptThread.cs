@@ -1,7 +1,7 @@
 ﻿using System.Windows.Forms;
 using GTA;
 
-namespace ScriptCore
+namespace TornadoScript.ScriptCore.Game
 {
     /// <summary>
     /// Base class for a script thread.
@@ -16,13 +16,13 @@ namespace ScriptCore
         /// <summary>
         /// Script vars.
         /// </summary>
-        private static ScriptVarCollection _vars;
+        public static ScriptVarCollection Vars { get; private set; }
 
         protected ScriptThread()
         {
             _extensions = new ScriptExtensionPool();
-            _vars = new ScriptVarCollection();
-            Tick += (s, e) => OnUpdate(Game.GameTime);
+            Vars = new ScriptVarCollection();
+            Tick += (s, e) => OnUpdate(GTA.Game.GameTime);
             KeyDown += KeyPressedInternal;
         }
 
@@ -100,7 +100,7 @@ namespace ScriptCore
         /// <param name="readOnly"></param>
         public static void RegisterVar<T>(string name, T defaultValue, bool readOnly = false)
         {
-            _vars.Add(name, new ScriptVar<T>(defaultValue, readOnly));
+            Vars.Add(name, new ScriptVar<T>(defaultValue, readOnly));
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace ScriptCore
         /// <returns></returns>
         public static ScriptVar<T> GetVar<T>(string name)
         {
-            return _vars.Get<T>(name);
+            return Vars.Get<T>(name);
         }
 
         /// <summary>

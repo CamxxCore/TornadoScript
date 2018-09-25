@@ -1,5 +1,5 @@
 ﻿
-namespace ScriptCore.IO
+namespace TornadoScript.ScriptCore.IO
 {
     /// <summary>
     /// Base interface for simple XML data.

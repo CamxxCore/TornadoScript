@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using GTA.Math;
 
-namespace TornadoScript
+namespace TornadoScript.ScriptMain.Utility
 {
     public static class MathEx
     {
@@ -12,9 +12,9 @@ namespace TornadoScript
 
         private static float[] _sin = new float[720];
 
-        public const double RadToDeg = (180 / Math.PI);
+        public const double RadToDeg = 180 / Math.PI;
 
-        public const double DegToRad = (Math.PI / 180);
+        public const double DegToRad = Math.PI / 180;
 
         static MathEx()
         {
@@ -53,10 +53,10 @@ namespace TornadoScript
 
         public static Vector3 AnglesToForward(Vector3 position, Vector3 angles, int length)
         {
-            float num = (float)(Math.Sin((angles.X * Math.PI) / 180)) * length;
-            float num1 = (float)(Math.Sqrt(((length * length) - (num * num))));
-            float num2 = (float)(Math.Sin((angles.Y * Math.PI) / 180)) * num1;
-            float num3 = (float)(Math.Cos((angles.Y * Math.PI) / 180)) * num1;
+            float num = (float)Math.Sin(angles.X * Math.PI / 180) * length;
+            float num1 = (float)Math.Sqrt(length * length - num * num);
+            float num2 = (float)Math.Sin(angles.Y * Math.PI / 180) * num1;
+            float num3 = (float)Math.Cos(angles.Y * Math.PI / 180) * num1;
             return new Vector3(position.X + num3, position.Y + num2, position.Z - num);
         }
 

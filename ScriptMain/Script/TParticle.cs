@@ -1,27 +1,32 @@
-﻿using System;
-using GTA;
-using GTA.Native;
+﻿using GTA;
 using GTA.Math;
-using ScriptCore;
+using GTA.Native;
+using System;
+using TornadoScript.ScriptCore.Game;
+using TornadoScript.ScriptMain.Utility;
 
-namespace TornadoScript.Script
+namespace TornadoScript.ScriptMain.Script
 {
     /// <summary>
     /// Represents a particle in the tornado.
     /// </summary>
-    public sealed class Particle : ScriptProp
+    public sealed class TornadoParticle : ScriptProp
     {
         public int LayerIndex { get; }
 
-        public Vortex Parent { get; set; }
+        public TornadoVortex Parent { get; set; }
+
+        public bool IsCloud { get; }
 
         private Vector3 _centerPos;
+
+        private readonly Vector3 _offset;
 
         private readonly Quaternion _rotation;
 
         private readonly LoopedParticle _ptfx;
 
-        private readonly float _xRadius, _yRadius;
+        private readonly float _radius;
 
         private float _angle, _layerMask;
 
@@ -33,32 +38,32 @@ namespace TornadoScript.Script
         /// <param name="fxName"></param>
         /// <param name="position"></param>
         /// <param name="angle"></param>
-        /// <param name="radiusX"></param>
-        /// <param name="radiusY"></param>
+        /// <param name="radius"></param>
         /// <param name="layerIdx"></param>
-        public Particle(Vortex vortex, Vector3 position, Vector3 angle, string fxAsset, string fxName, float radiusX, float radiusY, int layerIdx) 
+        public TornadoParticle(TornadoVortex vortex, Vector3 position, Vector3 angle, string fxAsset, string fxName, float radius, int layerIdx, bool isCloud = false) 
             : base(Setup(position))
         {   
             Parent = vortex;      
             _centerPos = position;
             _rotation = MathEx.Euler(angle);
             _ptfx = new LoopedParticle(fxAsset, fxName);
-            _xRadius = radiusX;
-            _yRadius = radiusY;
+            _radius = radius;          
+            _offset = new Vector3(0, 0, ScriptThread.GetVar<float>("vortexLayerSeperationScale") * layerIdx);
             LayerIndex = layerIdx;
+            IsCloud = isCloud;
             PostSetup();
         }
 
         private void PostSetup()
         {
-            _layerMask = 1.0f - ((float)LayerIndex / Parent.MaxLayers);
+            _layerMask = 1.0f - (float)LayerIndex / (ScriptThread.GetVar<int>("vortexMaxParticleLayers") * 4);
 
-            _layerMask *= (0.1f * LayerIndex);
+            _layerMask *= 0.1f * LayerIndex;
 
             _layerMask = 1.0f - _layerMask;
 
-            if (_layerMask < 0.30f)
-                _layerMask = 0.30f;
+            if (_layerMask <= 0.3f)
+               _layerMask = 0.3f;
         }
 
         /// <summary>
@@ -101,27 +106,36 @@ namespace TornadoScript.Script
 
         public override void OnUpdate(int gameTime)
         {
-            if (Parent == null)
+         /*   if (Parent == null)
             {
                 Dispose();
             }
 
             else
-            {
-                _centerPos = Parent.Position + new Vector3(0, 0, Parent.LayerSize * LayerIndex);
+            {*/
+                _centerPos = Parent.Position + _offset;
 
                 if (Math.Abs(_angle) > Math.PI * 2.0f)
                 {
                     _angle = 0.0f;
                 }
 
-                Ref.Position = _centerPos + MathEx.MultiplyVector(new Vector3(_xRadius * (float) Math.Cos(_angle), _yRadius * (float) Math.Sin(_angle), 0), _rotation);
+                Ref.Position = _centerPos + 
+                    MathEx.MultiplyVector(new Vector3(_radius * (float)Math.Cos(_angle), _radius * (float)Math.Sin(_angle), 0), _rotation);
 
-                _angle -= (Parent.Speed * _layerMask) * Function.Call<float>(Hash.GET_FRAME_TIME);
+                if (IsCloud)
+                {
+                    _angle -= ScriptThread.GetVar<float>("vortexRotationSpeed") * 0.16f * Game.LastFrameTime;
+                }
+                else
+                {
+                    _angle -= ScriptThread.GetVar<float>("vortexRotationSpeed") * _layerMask * Game.LastFrameTime;
+                }
+
+                //    }
+
+                base.OnUpdate(gameTime);
             }
-
-            base.OnUpdate(gameTime);
-        }
 
         public void StartFx(float scale)
         {
@@ -132,7 +146,7 @@ namespace TornadoScript.Script
 
             _ptfx.Start(this, scale);
 
-            _ptfx.Colour = System.Drawing.Color.Black;
+            // _ptfx.Alpha = 0.5f;
         }
 
         public void RemoveFx()
@@ -143,7 +157,6 @@ namespace TornadoScript.Script
         public override void Dispose()
         {
             RemoveFx();
-
             base.Dispose();
         }
     }

@@ -1,10 +1,11 @@
 ﻿using System;
-using System.IO;
-using System.Reflection;
 using System.ComponentModel;
 using System.Globalization;
+using System.IO;
+using System.Reflection;
+using TornadoScript.ScriptMain.Utility;
 
-namespace TornadoScript.Config
+namespace TornadoScript.ScriptMain.Config
 {
     public static class IniHelper
     {
@@ -40,7 +41,7 @@ namespace TornadoScript.Config
         public static T GetValue<T>(string section, string key, T defaultValue = default(T))
         {
             Type type = typeof(T);
-            if (!type.IsValueType)
+            if (!type.IsValueType && type != typeof(string))
                 throw new ArgumentException("Not a known type.");
 
             var keyValue = IniFile.IniReadValue(section, key);
@@ -59,8 +60,8 @@ namespace TornadoScript.Config
             try
             {
                 if (File.Exists(IniPath)) File.Delete(IniPath);
-                var list = Util.ReadEmbeddedResource(Properties.Resources.TornadoScript);
-                Util.WriteListToFile(list, IniPath);
+                var list = Helpers.ReadEmbeddedResource(Properties.Resources.TornadoScript);
+                Helpers.WriteListToFile(list, IniPath);
             }
 
             catch (AccessViolationException)

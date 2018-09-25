@@ -1,5 +1,5 @@
 ﻿
-namespace ScriptCore.IO
+namespace TornadoScript.ScriptCore.IO
 {
     /// <summary>
     /// Class to represent simple XML metadata.

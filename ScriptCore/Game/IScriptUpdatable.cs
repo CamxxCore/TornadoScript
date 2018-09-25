@@ -1,5 +1,5 @@
 ﻿
-namespace ScriptCore
+namespace TornadoScript.ScriptCore.Game
 {
     /// <summary>
     /// Represents an object that can be updated by a script.

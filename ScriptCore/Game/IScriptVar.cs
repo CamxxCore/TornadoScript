@@ -1,5 +1,5 @@
 ﻿
-namespace ScriptCore
+namespace TornadoScript.ScriptCore.Game
 {
     public interface IScriptVar
     {

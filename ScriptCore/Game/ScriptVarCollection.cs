@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ScriptCore
+namespace TornadoScript.ScriptCore.Game
 {
     public class ScriptVarCollection : Dictionary<string, IScriptVar>
     {
@@ -18,9 +15,7 @@ namespace ScriptCore
         /// <returns></returns>
         public ScriptVar<T> Get<T>(string name)
         {
-            IScriptVar result;
-
-            if (TryGetValue(name, out result))
+            if (TryGetValue(name, out var result))
             {
                 return result as ScriptVar<T>;
             }

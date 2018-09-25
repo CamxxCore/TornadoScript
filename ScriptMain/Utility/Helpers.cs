@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GTA;
-using GTA.Native;
-using GTA.Math;
+using System.Drawing;
 using System.IO;
+using System.Runtime.CompilerServices;
+using GTA;
+using GTA.Math;
+using GTA.Native;
 
-namespace TornadoScript
+namespace TornadoScript.ScriptMain.Utility
 {
-    public static class Util
+    public static class Helpers
     {
+        public static Ped GetLocalPed()
+        {
+            return Game.Player.Character;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2 Vec2(this Vector3 v)
         {
@@ -73,7 +76,16 @@ namespace TornadoScript
 
         public static float Lerp(this float a, float b, float f)
         {
-            return (a * (1.0f - f)) + (b * f);
+            return a * (1.0f - f) + b * f;
+        }
+
+        public static Color Lerp(this Color source, Color target, double percent)
+        {
+            var r = (byte)(source.R + (target.R - source.R) * percent);
+            var g = (byte)(source.G + (target.G - source.G) * percent);
+            var b = (byte)(source.B + (target.B - source.B) * percent);
+
+            return Color.FromArgb(source.A, r, g, b);
         }
 
         /// <summary>
@@ -91,6 +103,14 @@ namespace TornadoScript
                     stream.WriteLine(line);
                 }
             }
+        }
+
+        public static void NotifyWithIcon(string title, string text, string icon)
+        {
+            Function.Call(Hash._SET_NOTIFICATION_TEXT_ENTRY, "STRING");
+            Function.Call(Hash._ADD_TEXT_COMPONENT_STRING, text);
+            Function.Call(Hash._SET_NOTIFICATION_MESSAGE, icon, icon, false, 4, title, "");
+            Function.Call(Hash._DRAW_NOTIFICATION, false, true);
         }
     }
 }

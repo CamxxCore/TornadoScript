@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ScriptCore
+﻿namespace TornadoScript.ScriptCore.Game
 {
     public abstract class ScriptExtension : ScriptComponent, IScriptEventHandler
     {

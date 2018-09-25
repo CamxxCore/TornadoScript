@@ -1,23 +1,22 @@
 ﻿using GTA;
-using GTA.Native;
 using GTA.Math;
+using GTA.Native;
 
-namespace TornadoScript
+namespace TornadoScript.ScriptMain.Utility
 {
     public class GameSound
     {
-        private string _soundSet;
-        private string _sound;
         private int _soundId;
+        private readonly string _soundSet, _sound;
 
         public bool Active { get; private set; }
 
         public GameSound(string sound, string soundSet)
         {
-            this.Active = false;
-            this._sound = sound;
-            this._soundSet = soundSet;
-            this._soundId = -1;
+            Active = false;
+            _sound = sound;
+            _soundSet = soundSet;
+            _soundId = -1;
         }
 
         public static void Load(string audioBank)
@@ -42,10 +41,10 @@ namespace TornadoScript
             Active = true;
         }
 
-        public void Play(Vector3 position)
+        public void Play(Vector3 position, int range)
         {
             _soundId = Function.Call<int>(Hash.GET_SOUND_ID);
-            Function.Call(Hash.PLAY_SOUND_FROM_COORD, _soundId, _sound, position.X, position.Y, position.Z, 0, 0, 0, 0);
+            Function.Call(Hash.PLAY_SOUND_FROM_COORD, _soundId, _sound, position.X, position.Y, position.Z, 0, 1, range, 0);
             Active = true;
         }
 

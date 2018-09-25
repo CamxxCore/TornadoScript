@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ScriptCore
+namespace TornadoScript.ScriptCore.Game
 {
     /// <summary>
     /// Base class for all script components.

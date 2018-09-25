@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace TornadoScript.Memory
+namespace TornadoScript.ScriptMain.Memory
 {
     [StructLayout(LayoutKind.Explicit)]
     public struct PtfxAssetStore
@@ -27,10 +28,19 @@ namespace TornadoScript.Memory
     };
 
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct PtxVarVector
+    public struct PtxColour
     {
-        public fixed float UnkMask[4];
-        public fixed float Value[4];
+        public float R;
+        public float G;
+        public float B;
+        public float A;
+    }; //sizeof=0x8
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct PtxVarVector
+    {
+        public PtxColour Min; //0x0-0x8
+        public PtxColour Max; //0x8-0x10
     }; //sizeof=0x10
 
     [StructLayout(LayoutKind.Sequential)]
@@ -78,32 +88,28 @@ namespace TornadoScript.Memory
         [FieldOffset(0x30)]
         public PtxKeyframeData* F4;
         [FieldOffset(0x70)]
-        public PtxKeyframeVars Defaults;
-        [FieldOffset(0x78)]
-        public short VarsCount;
-        [FieldOffset(0x7A)]
-        public short UnkCount;
+        public PgCollection Current; // PtxVarVector* collection
         [FieldOffset(0x88)]
-        public PtxVarVectorKfp VarsKFP;
+        public PtxVarVectorKfp Defaults;
     };
 
     [StructLayout(LayoutKind.Explicit)]
-    public unsafe struct PtxBehaviour
+    public unsafe struct Ptxu_Colour
     {
         [FieldOffset(0x8)]
-        public uint HashName;
+        public uint HashName; // inherited from ptxBehaviour
         [FieldOffset(0x10)]
-        public PtxKeyframeProp** KeyframeProps; //0x10-0x18
+        public PtxKeyframeProp** KeyframeProps; //0x10-0x18 // inherited from ptxBehaviour
         [FieldOffset(0x18)]
-        public short NumFrames; //0x18-0x1A
+        public short NumFrames; //0x18-0x1A // inherited from ptxBehaviour
         [FieldOffset(0x1A)]
-        public short MaxFrames; //0x1A-0x1C assumed
+        public short MaxFrames; //0x1A-0x1C assumed // inherited from ptxBehaviour
         [FieldOffset(0xA0)]
-        public PtxVarVector* UnkVar; //0xA0-0xA8
-        [FieldOffset(0xA8)]
-        public short VarsCount;
-        [FieldOffset(0xAA)]
-        public short UnkCount;
+        public PgCollection RGBA_Min; //0xA0-0xA8 PtxVarVector* collection
+        [FieldOffset(0x130)]
+        public PgCollection RGBA_Max; //0x130-0x138 PtxVarVector* collection
+        [FieldOffset(0x1C0)]
+        public PgCollection Emissive_Intensity; //0x130-0x138 PtxVarVector* collection
     };
 
     [StructLayout(LayoutKind.Explicit)]
@@ -128,7 +134,7 @@ namespace TornadoScript.Memory
         [FieldOffset(0x90)]
         public IntPtr Spawner1; //0x90-0x100  ptxEffectSpawner
         [FieldOffset(0x128)]
-        public PtxBehaviour** Behaviours; //0x128-0x130
+        public Ptxu_Colour** Behaviours; //0x128-0x130
         [FieldOffset(0x130)]
         public short BehavioursCount; //0x130-0x132
         [FieldOffset(0x132)]
@@ -161,6 +167,17 @@ namespace TornadoScript.Memory
     };
 
     [StructLayout(LayoutKind.Explicit)]
+    public struct PgCollection
+    {
+        [FieldOffset(0x0)]
+        public IntPtr Items; //0x30-0x38
+        [FieldOffset(0x08)]
+        public short Count;//0x38-0x3A
+        [FieldOffset(0xC)]
+        public short Size;//0x38-0x3A
+    };
+
+    [StructLayout(LayoutKind.Explicit)]
     public struct PgDictionary
     {
         [FieldOffset(0x30)]
@@ -170,7 +187,7 @@ namespace TornadoScript.Memory
     };
 
     [StructLayout(LayoutKind.Sequential)]
-    struct FwPool
+    internal struct FwPool
     {
         public long Items; //0x0-0x8
         public IntPtr BitMap; //0x8-0x10
@@ -198,4 +215,65 @@ namespace TornadoScript.Memory
         }
     }
 
+    [StructLayout(LayoutKind.Explicit)]
+    internal unsafe struct GenericPool
+    {
+        [FieldOffset(0x00)]
+        public ulong poolStartAddress;
+        [FieldOffset(0x08)]
+        public IntPtr byteArray;
+        [FieldOffset(0x10)]
+        public uint size;
+        [FieldOffset(0x14)]
+        public uint itemSize;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IsValid(uint index)
+        {
+            return Mask(index) != 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ulong GetAddress(uint index)
+        {
+            return ((Mask(index) & (poolStartAddress + index * itemSize)));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private ulong Mask(uint index)
+        {
+            unsafe
+            {
+                byte* byteArrayPtr = (byte*)byteArray.ToPointer();
+                long num1 = byteArrayPtr[index] & 0x80;
+                return (ulong)(~((num1 | -num1) >> 63));
+            }
+        }
+    }
+
+
+    [StructLayout(LayoutKind.Explicit)]
+    internal unsafe struct VehiclePool
+    {
+        [FieldOffset(0x00)]
+        internal ulong* poolAddress;
+        [FieldOffset(0x08)]
+        internal uint size;
+        [FieldOffset(0x30)]
+        internal uint* bitArray;
+        [FieldOffset(0x60)]
+        internal uint itemCount;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool IsValid(uint i)
+        {
+            return (((bitArray[i >> 5] >> ((int)i & 0x1F)) & 1) != 0) && poolAddress[i] != 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal ulong GetAddress(uint i)
+        {
+            return poolAddress[i];
+        }
+    }
 }

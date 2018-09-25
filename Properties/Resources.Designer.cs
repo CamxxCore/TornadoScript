@@ -19,7 +19,7 @@ namespace TornadoScript.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -64,20 +64,26 @@ namespace TornadoScript.Properties {
         ///   Looks up a localized string similar to [KeyBinds]
         ///;  Binds for the keyboard --&gt;
         ///
-        ///Enabled = true
+        ///KeybindsEnabled = true
         ///;  Enable keybinds.
         ///
-        ///Toggle = F8
+        ///ToggleScript = F6
         ///;  Tornado activation key.
         ///
         ///;-- You can use any keys from the Windows Forms key enumeration found here:
         ///;https://msdn.microsoft.com/en-us/library/system.windows.forms.keys%28v=vs.110%29.aspx
         ///
-        ///[Other]
-        ///;  Other customizations --&gt;
         ///
-        ///SpawnInStorm = false
-        ///;  Spawn in a tornado when a thunderstorm is occuring.
+        ///[Vortex]
+        ///; Settings for the tornado vortex --&gt;
+        ///
+        ///MovementEnabled = true
+        ///;  Enable/ disable tornado movement
+        ///
+        ///MoveSpeedScale = 1.0
+        ///;  Speed at which the tornado traverses the world.
+        ///
+        ///MaxEntitySpe [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string TornadoScript {
             get {

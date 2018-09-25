@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Xml;
 
-namespace ScriptCore.IO
+namespace TornadoScript.ScriptCore.IO
 {
     class XMLSimpleParser
     {
