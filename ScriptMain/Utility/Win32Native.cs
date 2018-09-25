@@ -1,12 +1,17 @@
 ﻿using System;
+<<<<<<< HEAD
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Security;
+=======
+using System.Runtime.InteropServices;
+>>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
 using System.Text;
 using System.Windows.Input;
 
 namespace TornadoScript.ScriptMain.Utility
 {
+<<<<<<< HEAD
     [Flags]
     public enum ThreadAccess : int
     {
@@ -102,6 +107,17 @@ namespace TornadoScript.ScriptMain.Utility
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern int GetWindowThreadProcessId(IntPtr handle, out int processId);
 
+=======
+    public sealed class Win32Native
+    {
+        public struct MODULEINFO
+        {
+            public IntPtr LpBaseOfDll;
+            public uint SizeOfImage;
+            public IntPtr EntryPoint;
+        }
+
+>>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
         [DllImport("kernel32.dll")]
         public static extern IntPtr GetCurrentProcess();
 
@@ -173,12 +189,15 @@ namespace TornadoScript.ScriptMain.Utility
             }
             return ch;
         }
+<<<<<<< HEAD
 
        [DllImport("winmm.dll", SetLastError = true)]
        public static extern int PlaySound(
        string szSound,
        IntPtr hModule,
        int flags);
+=======
+>>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
     }
 }
 

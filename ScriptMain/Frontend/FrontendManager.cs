@@ -29,7 +29,11 @@ namespace TornadoScript.ScriptMain.Frontend
 
         private void OnKeyDown(object sender, ScriptEventArgs e)
         {
+<<<<<<< HEAD
             var keyArgs = e.Data as System.Windows.Forms.KeyEventArgs;
+=======
+            var keyArgs = e.Data as KeyEventArgs;
+>>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
 
             if (keyArgs == null) return;
 
@@ -78,7 +82,11 @@ namespace TornadoScript.ScriptMain.Frontend
             else _output.WriteLine(format, args);
         }
 
+<<<<<<< HEAD
         private void GetConsoleInput(System.Windows.Forms.KeyEventArgs e)
+=======
+        private void GetConsoleInput(KeyEventArgs e)
+>>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
         {
             var key = KeyInterop.KeyFromVirtualKey((int)e.KeyCode);
 
