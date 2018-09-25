@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ﻿using GTA;
 using GTA.Math;
 using GTA.Native;
@@ -9,20 +8,11 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-=======
-﻿using System;
-using System.Drawing;
-using System.Runtime.InteropServices;
-using System.Text;
-using GTA;
-using GTA.Native;
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
 
 namespace TornadoScript.ScriptMain.Memory
 {
     public static unsafe class MemoryAccess
     {
-<<<<<<< HEAD
         private static bool bInitialized = false;
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
@@ -31,16 +21,10 @@ namespace TornadoScript.ScriptMain.Memory
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
         public delegate int AddEntityToPoolFn(ulong address);
 
-=======
-        [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-        public delegate IntPtr FwGetAssetIndexFn(IntPtr assetStore, out int index, StringBuilder name);
-
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
         public delegate IntPtr GetPooledPtfxAddressFn(int handle);
 
         private static IntPtr PtfxAssetStorePtr;
 
-<<<<<<< HEAD
         private static IntPtr ScriptEntityPoolAddr, VehiclePoolAddr, PedPoolAddr, ObjectPoolAddr;
 
         private static FwGetAssetIndexFn FwGetAssetIndex;
@@ -65,10 +49,6 @@ namespace TornadoScript.ScriptMain.Memory
          };
          */
 
-=======
-        private static FwGetAssetIndexFn FwGetAssetIndex;
-
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
         public static void Initialize()
         {
             #region SetupPTFXAssetStore
@@ -99,7 +79,6 @@ namespace TornadoScript.ScriptMain.Memory
                 FwGetAssetIndex = Marshal.GetDelegateForFunctionPointer<FwGetAssetIndexFn>(new IntPtr(rip + value));
             }
 
-<<<<<<< HEAD
             // Entity Pool ->
 
             pattern = new Pattern("\x4C\x8B\x0D\x00\x00\x00\x00\x44\x8B\xC1\x49\x8B\x41\x08", "xxx????xxxxxxx");
@@ -285,19 +264,13 @@ namespace TornadoScript.ScriptMain.Memory
 
                 }
             }
-=======
-            #endregion
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
         }
         
         private static PgDictionary* GetPtfxRuleDictionary(string ptxAssetName)
         {
-<<<<<<< HEAD
             if (bInitialized == false)
                 return null;
 
-=======
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
             var assetStore = Marshal.PtrToStructure<PtfxAssetStore>(PtfxAssetStorePtr);
 
             FwGetAssetIndex(PtfxAssetStorePtr, out var index, new StringBuilder(ptxAssetName));
@@ -309,15 +282,12 @@ namespace TornadoScript.ScriptMain.Memory
 
         public static bool FindPtxEffectRule(PgDictionary* ptxRulesDict, string fxName, out IntPtr result)
         {
-<<<<<<< HEAD
             if (bInitialized == false)
             {
                 result = IntPtr.Zero;
                 return false;
             }
 
-=======
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
             for (var i = 0; i < ptxRulesDict->ItemsCount; i++)
             {
                 var itAddress = Marshal.ReadIntPtr(ptxRulesDict->Items + i * 8);
@@ -338,7 +308,6 @@ namespace TornadoScript.ScriptMain.Memory
             return false;
         }
 
-<<<<<<< HEAD
         /// <summary>
         /// Get emitter by its name for the given asset rule
         /// </summary>
@@ -352,10 +321,6 @@ namespace TornadoScript.ScriptMain.Memory
 
             PtxEventEmitter* foundEmitter = null;
 
-=======
-        private static PtxEventEmitter* GetPtfxEventEmitterByName(IntPtr ptxAssetRulePtr, string particleName)
-        {
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
             var ptxRule = Marshal.PtrToStructure<PtxEffectRule>(ptxAssetRulePtr);
 
             for (var i = 0; i < ptxRule.EmittersCount; i++)
@@ -364,7 +329,6 @@ namespace TornadoScript.ScriptMain.Memory
 
                 var szName = Marshal.PtrToStringAnsi(emitter->SzEmitterName);
 
-<<<<<<< HEAD
                 if (szName == emitterName)
                 {
                     foundEmitter = emitter;
@@ -428,39 +392,6 @@ namespace TornadoScript.ScriptMain.Memory
 
         private static void SetEmitterColour(PtxEventEmitter* emitter, byte red, byte green, byte blue, byte alpha)
         {      
-=======
-                if (szName == particleName)
-                {
-                    return emitter;
-                }
-            }
-
-            return null;
-        }
-
-        public static void PatchPtfx()
-        {
-            Function.Call(Hash.REQUEST_NAMED_PTFX_ASSET, "core");
-
-            if (!FindPtxEffectRule(GetPtfxRuleDictionary("core"), "ent_amb_smoke_foundry", out var result)) return;
-
-            SetEmitterColour(result, "ent_amb_smoke_foundry_core2", Color.Black);
-
-            SetEmitterColour(result, "ent_amb_smoke_foundry_core", Color.Black);
-        }
-
-        private static void SetEmitterColour(IntPtr ptfxRule, string particleName, Color colour)
-        {
-            SetEmitterColour(ptfxRule, particleName, colour.R, colour.G, colour.B, colour.A);
-        }
-
-        private static void SetEmitterColour(IntPtr ptfxRule, string particleName, byte red, byte green, byte blue, byte alpha)
-        {
-            var behaviourHash = Game.GenerateHash("ptxu_Colour");
-
-            PtxEventEmitter* emitter = GetPtfxEventEmitterByName(ptfxRule, particleName);
-
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
             var r = 1.0f / 255 * red;
             var g = 1.0f / 255 * green;
             var b = 1.0f / 255 * blue;
@@ -470,11 +401,7 @@ namespace TornadoScript.ScriptMain.Memory
             {
                 Ptxu_Colour* behaviour = emitter->ParticleRule->Behaviours[i];
 
-<<<<<<< HEAD
                 if (behaviour->HashName != PtfxColourHash) continue;
-=======
-                if (behaviour->HashName != (uint)behaviourHash) continue;
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
 
                 for (var x = 0; x < behaviour->NumFrames; x++)
                 {
@@ -499,16 +426,9 @@ namespace TornadoScript.ScriptMain.Memory
                         items[y].Max.A = a;
                     }
                 }
-<<<<<<< HEAD
 
                 break;
-=======
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
             }
         }
     }
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48

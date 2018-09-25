@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ﻿using GTA;
 using GTA.Math;
 using GTA.Native;
@@ -8,15 +7,6 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 using TornadoScript.ScriptCore.Game;
 using TornadoScript.ScriptMain.Memory;
-=======
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using GTA;
-using GTA.Math;
-using GTA.Native;
-using TornadoScript.ScriptCore.Game;
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
 using TornadoScript.ScriptMain.Utility;
 
 namespace TornadoScript.ScriptMain.Script
@@ -26,11 +16,7 @@ namespace TornadoScript.ScriptMain.Script
         /// <summary>
         /// Scale of the vortex forces.
         /// </summary>
-<<<<<<< HEAD
         public float ForceScale { get; } = 3.0f;
-=======
-        public float ForceScale { get; } = 4.0f;
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
 
         /// <summary>
         /// Maximum distance entites must be from the vortex before we start using internal vortext forces on them.
@@ -39,7 +25,6 @@ namespace TornadoScript.ScriptMain.Script
 
         readonly List<TornadoParticle> _particles = new List<TornadoParticle>();
 
-<<<<<<< HEAD
         private int _aliveTime, _createdTime, _nextUpdateTime;
 
         private int _lastDebrisSpawnTime = 0;
@@ -47,11 +32,6 @@ namespace TornadoScript.ScriptMain.Script
         private int _lastFullUpdateTime;
 
         private int _lifeSpan;
-=======
-        readonly List<GameSound> _loadedSounds = new List<GameSound>();
-
-        private int _nextUpdateTime;
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
 
         private struct ActiveEntity
         {
@@ -69,7 +49,6 @@ namespace TornadoScript.ScriptMain.Script
             public bool IsPlayer { get; }
         }
 
-<<<<<<< HEAD
         public const int MaxEntityCount = 300;
 
         private readonly Dictionary<int, ActiveEntity> _pulledEntities = new Dictionary<int, ActiveEntity>();
@@ -91,18 +70,6 @@ namespace TornadoScript.ScriptMain.Script
             get { return _despawnRequested; }
             set { _despawnRequested = value; }
         }
-=======
-        public const int MaxEntityCount = 600;
-
-        private readonly ActiveEntity[] _activeEntities =
-            new ActiveEntity[MaxEntityCount];
-
-        private int _activeEntityCount;
-
-        private Vector3 _position, _destination;
-
-        public Vector3 Position => _position;
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
 
         private readonly Ped _player = Helpers.GetLocalPed();
 
@@ -110,7 +77,6 @@ namespace TornadoScript.ScriptMain.Script
 
         bool _lastRaycastResultFailed;
 
-<<<<<<< HEAD
         private materials lastMaterialTraversed;
 
         private int lastParticleShapeTestTime = 0;
@@ -149,17 +115,10 @@ namespace TornadoScript.ScriptMain.Script
                     break;
                 }
             }
-=======
-        public TornadoVortex(Vector3 initialPosition)
-        {
-            _position = initialPosition;
-            _destination = Helpers.GetRandomPositionFromCoords(initialPosition, 10.0f);
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
         }
 
         public void Build()
         {
-<<<<<<< HEAD
             float radius = ScriptThread.GetVar<float>("vortexRadius");
 
             int particleCount = ScriptThread.GetVar<int>("vortexParticleCount");
@@ -186,59 +145,26 @@ namespace TornadoScript.ScriptMain.Script
 
                 //multiplier = 360 / lyrParticleNum;
                 for (var angle = 0; angle < (layerIdx > maxLayers - 4 ? particleCount + 5 : particleCount); angle++)
-=======
-            var layerSize = ScriptThread.GetVar<float>("vortexLayerSeperationScale").Value;
-
-            var radius = ScriptThread.GetVar<float>("vortexRadius").Value;
-
-            var particleCount = ScriptThread.GetVar<int>("vortexParticleCount").Value;
-
-            var maxLayers = ScriptThread.GetVar<int>("vortexMaxParticleLayers");
-
-            var particleAsset = ScriptThread.GetVar<string>("vortexParticleAsset");
-
-            var particleName = ScriptThread.GetVar<string>("vortexParticleName");
-
-            var multiplier = 359 / particleCount;
-
-            var particleSize = 3.0f;
-
-            for (var i = 0; i < maxLayers; i++)
-            {
-                for (var angle = 0; angle <= particleCount; angle++)
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
                 {
                     // increment the Z axis as we build up.
                     var position = _position;
 
-<<<<<<< HEAD
                     position.Z += ScriptThread.GetVar<float>("vortexLayerSeperationScale") * layerIdx;
-=======
-                    position.Z += layerSize * i;
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
 
                     // place the particles at 360 / 10 on the X axis.
                     var rotation = new Vector3(angle * multiplier, 0, 0);
 
                     TornadoParticle particle;
 
-<<<<<<< HEAD
                     bool bIsTopParticle = false;
 
                     if (layerIdx < 2) //debris layer
                     {
                         particle = new TornadoParticle(this, position, rotation, "scr_agencyheistb", "scr_env_agency3b_smoke", radius, layerIdx);
-=======
-                    if (i < 2 || i > maxLayers - 3)
-                    {
-                        particle = new TornadoParticle(this, position, rotation, "scr_agencyheistb",
-                            "scr_env_agency3b_smoke", radius, i);
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
 
                         particle.StartFx(4.7f);
 
                         _particles.Add(particle);
-<<<<<<< HEAD
 
                         Function.Call(Hash.ADD_SHOCKING_EVENT_FOR_ENTITY, 86, particle.Ref.Handle, 0.0f); // shocking event at outer vorticies
                     }
@@ -343,78 +269,6 @@ namespace TornadoScript.ScriptMain.Script
                 }
 
                 _nextUpdateTime = gameTime + 200;
-=======
-                    }
-
-                    particle = new TornadoParticle(this, position, rotation, particleAsset, particleName, radius, i);
-
-                    particle.StartFx(particleSize);
-
-                    radius += 0.0799999982118607f * (0.720000028610229f * i);
-
-                    particleSize += 0.00999999977648258f * (0.119999997317791f * i);
-
-                    _particles.Add(particle);
-                }
-
-
-            }
-        }
-
-        private void RemoveEntity(int entityIdx)
-        {
-            _activeEntityCount -= 1;
-
-            for (var i = entityIdx; i < _activeEntities.Length - 1; i++)
-            {
-                _activeEntities[i] = _activeEntities[i + 1];
-            }
-        }
-
-        private void PushBackEntity(ActiveEntity entity)
-        {
-            for (var i = _activeEntities.Length - 1; i > 0; i--)
-            {
-                _activeEntities[i] = _activeEntities[i - 1];
-            }
-
-            _activeEntities[0] = entity;
-
-            _activeEntityCount = Math.Min(_activeEntityCount + 1, _activeEntities.Length);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void CollectNearbyEntities(float maxDistanceDelta)
-        {
-            foreach (var ent in World.GetAllEntities())
-            {
-                var entityPos = ent.Position;
-
-                if (!(Vector2.Distance(entityPos.Vec2(), _position.Vec2()) < maxDistanceDelta) ||
-                    !(ent.HeightAboveGround < 300.0f)) continue;
-
-                var entityExistsLocally = false;
-
-                for (var x = 0; x < _activeEntityCount; x++)
-                {
-                    if (_activeEntities[x].Entity != ent) continue;
-
-                    entityExistsLocally = true;
-
-                    break;
-                }
-
-                if (entityExistsLocally) continue;
-
-                if (ent is Ped && /*entities[p].Handle != _player.Handle &&*/ !(ent as Ped).IsRagdoll)
-                {
-                    Function.Call(Hash.SET_PED_TO_RAGDOLL, ent.Handle, 800, 1500, 2, 1, 1, 0);
-                }
-
-                PushBackEntity(new ActiveEntity(ent,
-                    3.0f * Probability.GetScalar(),
-                    3.0f * Probability.GetScalar()));
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
             }
         }
 
@@ -427,7 +281,6 @@ namespace TornadoScript.ScriptMain.Script
 
             float topSpeed = ScriptThread.GetVar<float>("vortexTopEntitySpeed");
 
-<<<<<<< HEAD
             pendingRemovalEntities.Clear();
 
             foreach (var e in _pulledEntities)
@@ -443,22 +296,6 @@ namespace TornadoScript.ScriptMain.Script
                 }
 
                 var targetPos = new Vector3(_position.X + e.Value.XBias, _position.Y + e.Value.YBias, entity.Position.Z);
-=======
-            for (var e = 0; e < _activeEntityCount; e++)
-            {
-                var entity = _activeEntities[e].Entity;
-
-                var dist = Vector2.Distance(entity.Position.Vec2(), _position.Vec2());
-
-                if (dist > maxDistanceDelta - 12.6f || entity.HeightAboveGround > 300.0f)
-                {
-                    RemoveEntity(e);
-                    continue;
-                }
-
-                var targetPos = new Vector3(_position.X + _activeEntities[e].XBias,
-                    _position.Y + _activeEntities[e].YBias, entity.Position.Z);
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
 
                 var direction = Vector3.Normalize(targetPos - entity.Position);
 
@@ -466,7 +303,6 @@ namespace TornadoScript.ScriptMain.Script
 
                 var force = ForceScale * (forceBias + forceBias / dist);
 
-<<<<<<< HEAD
                 if (e.Value.IsPlayer)
                 {
                     verticalForce *= 1.62f;
@@ -475,10 +311,6 @@ namespace TornadoScript.ScriptMain.Script
 
                     //  horizontalForce *= 1.5f;
 
-=======
-                if (_activeEntities[e].IsPlayer)
-                {
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
                     if (gameTime - _lastPlayerShapeTestTime > 1000)
                     {
                         var raycast = World.Raycast(entity.Position, targetPos, IntersectOptions.Map);
@@ -490,12 +322,6 @@ namespace TornadoScript.ScriptMain.Script
 
                     if (_lastRaycastResultFailed)
                         continue;
-<<<<<<< HEAD
-=======
-
-                    verticalForce *= 1.45f;
-                    horizontalForce *= 1.5f;
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
                 }
 
                 if (entity.Model.IsPlane)
@@ -506,12 +332,7 @@ namespace TornadoScript.ScriptMain.Script
 
                 // apply a directional force pulling them into the tornado...
                 entity.ApplyForce(direction * horizontalForce,
-<<<<<<< HEAD
                     new Vector3(Probability.NextFloat(), 0, Probability.GetScalar()));
-=======
-                    new Vector3(Probability.NextFloat(), 0,
-                        Probability.GetScalar()));
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
 
                 var upDir = Vector3.Normalize(new Vector3(_position.X, _position.Y, _position.Z + 1000.0f) -
                                               entity.Position);
@@ -526,7 +347,6 @@ namespace TornadoScript.ScriptMain.Script
 
                 Function.Call(Hash.SET_ENTITY_MAX_SPEED, entity.Handle, topSpeed);
             }
-<<<<<<< HEAD
 
             foreach (var e in pendingRemovalEntities)
             {
@@ -651,13 +471,10 @@ namespace TornadoScript.ScriptMain.Script
                 
                 new TDebris(this, _position, ScriptThread.GetVar<float>("vortexRadius"));
             }
-=======
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
         }
 
         public override void OnUpdate(int gameTime)
         {
-<<<<<<< HEAD
             if (gameTime - _createdTime > _lifeSpan)
                 _despawnRequested = true;
 
@@ -679,54 +496,20 @@ namespace TornadoScript.ScriptMain.Script
                 var vTarget = MathEx.MoveTowards(_position, _destination, ScriptThread.GetVar<float>("vortexMoveSpeedScale") * 0.287f);
 
                 _position = Vector3.Lerp(_position, vTarget, Game.LastFrameTime * 20.0f);
-=======
-            if (ScriptThread.GetVar<bool>("vortexMovementEnabled"))
-            {
-                if (_position.DistanceTo(_player.Position) > 200.0f)
-                {
-                    _destination = _player.Position.Around(50.0f);
-                    _destination.Z = World.GetGroundHeight(_destination) - 10.0f;
-                }
-
-                else if (_position.DistanceTo(_destination) < 15.0f)
-                {
-                    _destination = Helpers.GetRandomPositionFromCoords(_position, 10.0f);
-                    _destination.Z = World.GetGroundHeight(_destination) - 10.0f;
-                }
-
-                _position = MathEx.MoveTowards(_position, _destination,
-                    ScriptThread.GetVar<float>("vortexMoveSpeedScale") * 0.287f);
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
             }
 
             float maxEntityDist = ScriptThread.GetVar<float>("vortexMaxEntityDist");
 
-<<<<<<< HEAD
             CollectNearbyEntities(gameTime, maxEntityDist);
 
             UpdatePulledEntities(gameTime, maxEntityDist);
 
             UpdateDebrisLayer(lastMaterialTraversed);
             // UpdateCrosswinds(gameTime);
-=======
-            if (gameTime > _nextUpdateTime)
-            {
-                CollectNearbyEntities(maxEntityDist);
-
-                _nextUpdateTime = gameTime + 800;
-            }
-
-            UpdatePulledEntities(gameTime, maxEntityDist);
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
         }
 
         public override void Dispose()
         {
-<<<<<<< HEAD
-=======
-            _loadedSounds.ForEach(x => x.Destroy());
-
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
             _particles.ForEach(x => x.Dispose());
 
             base.Dispose();

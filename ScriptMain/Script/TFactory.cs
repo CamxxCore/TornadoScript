@@ -1,16 +1,9 @@
-<<<<<<< HEAD
 ﻿using GTA;
 using GTA.Math;
 using GTA.Native;
 using System;
 using System.IO;
 using TornadoScript.ScriptCore;
-=======
-﻿using System;
-using GTA;
-using GTA.Math;
-using GTA.Native;
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
 using TornadoScript.ScriptCore.Game;
 using TornadoScript.ScriptMain.Utility;
 
@@ -21,7 +14,6 @@ namespace TornadoScript.ScriptMain.Script
     /// </summary>
     public class TornadoFactory : ScriptExtension
     {
-<<<<<<< HEAD
         private WavePlayer _tornadoWarningSiren;
 
         private WavePlayer _tornadoLowRumble;
@@ -34,15 +26,10 @@ namespace TornadoScript.ScriptMain.Script
 
         private int _spawnDelayStartTime = 0;
 
-=======
-        private const int VortexLimit = 30;
-
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
         private int _lastSpawnAttempt;
 
         public int ActiveVortexCount { get; private set; }
 
-<<<<<<< HEAD
         private bool soundEnabled = true, sirenEnabled = true;
 
         private readonly TornadoVortex[] _activeVortexList = new TornadoVortex[VortexLimit];
@@ -96,10 +83,6 @@ namespace TornadoScript.ScriptMain.Script
                 Logger.Log("Could not load audio file '{0}'. Expected path: '{1}'", soundName, absolutePath);
         }
 
-=======
-        private readonly TornadoVortex[] _activeVortexList = new TornadoVortex[VortexLimit];
-
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
         /// <summary>
         /// Create a vortex at the given position.
         /// </summary>
@@ -107,23 +90,15 @@ namespace TornadoScript.ScriptMain.Script
         /// <returns></returns>
         public TornadoVortex CreateVortex(Vector3 position)
         {
-<<<<<<< HEAD
             if (spawnInProgress) // tornado already spawning in
                 return null;
 
             for (var i = _activeVortexList.Length - 1; i > 0; i--)
-=======
-            for (int i = _activeVortexList.Length - 1; i > 0; i--)
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
                 _activeVortexList[i] = _activeVortexList[i - 1];
 
             position.Z = World.GetGroundHeight(position) - 10.0f;
 
-<<<<<<< HEAD
             var tVortex = new TornadoVortex(position, false);
-=======
-            var tVortex = new TornadoVortex(position);
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
 
             tVortex.Build();
 
@@ -131,7 +106,6 @@ namespace TornadoScript.ScriptMain.Script
 
             ActiveVortexCount = Math.Min(ActiveVortexCount + 1, _activeVortexList.Length);
 
-<<<<<<< HEAD
             if (soundEnabled)
             {
                 if (_tornadoLowRumble != null)
@@ -146,25 +120,18 @@ namespace TornadoScript.ScriptMain.Script
                 }
             }
 
-=======
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
             if (ScriptThread.GetVar<bool>("notifications"))
             {
                 UI.Notify("Tornado spawned nearby.");
             }
 
-<<<<<<< HEAD
             spawnInProgress = true;
 
             return null;
-=======
-            return tVortex;
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
         }
 
         public override void OnUpdate(int gameTime)
         {
-<<<<<<< HEAD
             //UI.ShowSubtitle("vcount: " + ActiveVortexCount + " spawning: " + spawnInProgress + " delay spawn: " + delaySpawn);
 
             if (ActiveVortexCount < 1)
@@ -246,36 +213,12 @@ namespace TornadoScript.ScriptMain.Script
                     }
                 }
             }
-=======
-            if (ActiveVortexCount > 0 && Game.Player.IsDead && Function.Call<bool>(Hash.IS_SCREEN_FADED_OUT))
-            {
-                RemoveAll();
-            }
-
-            if (World.Weather == Weather.ThunderStorm && ScriptThread.GetVar<bool>("spawnInStorm"))
-            {
-                if (Game.GameTime - _lastSpawnAttempt > 1000)
-                {
-                    if (Probability.GetBoolean(0.005f))
-                    {
-                        Function.Call(Hash.SET_WIND_SPEED, 70.0f);
-
-                        var position = Game.Player.Character.Position + Game.Player.Character.ForwardVector * 100f;
-
-                        CreateVortex(position.Around(30f));
-                    }
-
-                    _lastSpawnAttempt = Game.GameTime;
-                }
-            }   
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
 
             base.OnUpdate(gameTime);
         }
 
         public void RemoveAll()
         {
-<<<<<<< HEAD
             spawnInProgress = false;
 
             if (_tornadoWarningSiren != null && _tornadoWarningSiren.IsPlaying())
@@ -284,8 +227,6 @@ namespace TornadoScript.ScriptMain.Script
             if (_tornadoLowRumble != null && _tornadoLowRumble.IsPlaying())
                 _tornadoLowRumble.DoFadeOut(3000, 0.0f);
 
-=======
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
             for (var i = 0; i < ActiveVortexCount; i++)
             {
                 _activeVortexList[i].Dispose();
@@ -293,10 +234,7 @@ namespace TornadoScript.ScriptMain.Script
                 _activeVortexList[i] = null;
             }
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 46660d5b9e2a5942c1c3eb32c40357e5d9abfc48
             ActiveVortexCount = 0;
         }
 
